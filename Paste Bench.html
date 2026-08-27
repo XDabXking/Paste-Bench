@@ -1,0 +1,2107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paste Bench</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:ital,wght@0,600;1,500&display=swap');
+
+  :root{
+    --ink:#17222B;
+    --ink-soft:#2A3A46;
+    --paper:#E3E7E2;
+    --paper-hi:#EEF0EA;
+    --text:#1B2420;
+    --meta:#6B7268;
+    --amber:#D6A03C;
+    --amber-deep:#B9832A;
+    --teal:#3F7D77;
+    --line:#C7CBC0;
+    --shadow: 0 1px 0 rgba(23,34,43,0.06), 0 4px 12px -6px rgba(23,34,43,0.3);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--text);
+    font-family:'IBM Plex Sans', system-ui, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    padding: clamp(16px, 4vw, 44px) clamp(16px, 4vw, 44px) clamp(40px, 7vw, 72px);
+  }
+
+  .rule{
+    font-family:'IBM Plex Mono', monospace;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    font-size:11px;
+    color:var(--amber);
+  }
+
+  header.masthead{
+    max-width:980px;
+    margin:0 auto 22px auto;
+    color:var(--paper-hi);
+    border-bottom:1px solid rgba(238,240,234,0.14);
+    padding-bottom:20px;
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+  }
+  .logomark{
+    flex:none;
+    width:38px;
+    height:38px;
+    margin-top:4px;
+    border-radius:4px;
+    background:linear-gradient(155deg, var(--amber) 0%, var(--amber-deep) 100%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow: 0 4px 14px -4px rgba(214,160,60,0.55);
+  }
+  .logomark svg{ width:20px; height:20px; display:block; }
+  header.masthead h1{
+    font-family:'IBM Plex Serif', serif;
+    font-weight:600;
+    font-style:italic;
+    font-size:clamp(24px, 3.2vw, 32px);
+    letter-spacing:-0.005em;
+    margin:0 0 8px 0;
+    line-height:1.1;
+    color:var(--amber);
+  }
+  header.masthead p{
+    margin:0;
+    color:#AAB3AC;
+    font-size:14.5px;
+    line-height:1.55;
+    max-width:56ch;
+  }
+
+  .desk{
+    max-width:980px;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:168px 1fr;
+    align-items:start;
+    gap:0;
+  }
+  @media (max-width:720px){
+    .desk{grid-template-columns:1fr;}
+  }
+
+  /* Catalog tabs */
+  nav.tabs{
+    display:flex;
+    flex-direction:column;
+    padding-top:26px;
+    align-self:start;
+  }
+  @media (max-width:720px){
+    nav.tabs{flex-direction:row; padding-top:0; overflow-x:auto; gap:8px; padding-bottom:10px;}
+  }
+  .tab{
+    position:relative;
+    background:transparent;
+    border:1px solid rgba(238,240,234,0.08);
+    color:#C9D0CB;
+    text-align:left;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    letter-spacing:0.06em;
+    padding:14px 16px 14px 18px;
+    cursor:pointer;
+    margin-bottom:6px;
+    border-radius:3px 0 0 3px;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
+    transition: background 120ms ease, color 120ms ease, transform 120ms ease;
+  }
+  @media (max-width:720px){
+    .tab{
+      clip-path:none;
+      border-radius:3px;
+      white-space:nowrap;
+      margin-bottom:0;
+    }
+  }
+  .tab:hover{ background:rgba(238,240,234,0.06); color:#EAF0EB; }
+  .tab.active{
+    background:var(--paper);
+    color:var(--ink);
+    font-weight:600;
+    transform: translateX(-2px);
+  }
+  @media (max-width:720px){ .tab.active{ transform:none; } }
+  .tab .idx{ color:var(--amber); margin-right:8px; }
+  .tab.active .idx{ color:var(--amber-deep); }
+  .tab:focus-visible{ outline:2px solid var(--amber); outline-offset:2px; }
+
+  main.card{
+    background:var(--paper);
+    border-radius:2px;
+    box-shadow:var(--shadow);
+    padding:clamp(18px,3vw,28px);
+    min-height:420px;
+  }
+
+  .panel{ display:none; }
+  .panel.active{ display:block; animation: rise 220ms ease; }
+  @media (prefers-reduced-motion: reduce){
+    .panel.active{ animation:none; }
+  }
+  @keyframes rise{
+    from{ opacity:0; transform:translateY(4px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  .panel h2{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:16px;
+    margin:0 0 4px 0;
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .panel h2 .rule{ font-size:10.5px; }
+  .panel > .desc{
+    margin:0 0 16px 0;
+    color:var(--meta);
+    font-size:13.5px;
+    max-width:60ch;
+  }
+
+  label.fieldlabel{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--meta);
+    margin-bottom:6px;
+  }
+
+  textarea.input{
+    width:100%;
+    min-height:130px;
+    resize:vertical;
+    background:var(--paper-hi);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:12px 14px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13.5px;
+    line-height:1.55;
+    color:var(--text);
+  }
+  textarea.input:focus-visible, select:focus-visible, button:focus-visible, input:focus-visible{
+    outline:2px solid var(--teal);
+    outline-offset:1px;
+  }
+
+  .meter{
+    display:flex;
+    gap:16px;
+    margin:10px 0 20px 0;
+    font-family:'IBM Plex Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    font-size:12px;
+    color:var(--meta);
+    border-top:1px dashed var(--line);
+    padding-top:8px;
+  }
+  .meter b{ color:var(--ink); font-weight:600; }
+
+  .options{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:18px;
+  }
+  .send-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+    padding:10px 12px;
+    background:var(--paper-hi);
+    border:1px dashed var(--line);
+    border-radius:2px;
+  }
+  .send-row .popout-note{ flex:1; min-width:200px; }
+  .send-row code{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    background:rgba(23,34,43,0.06);
+    padding:1px 5px;
+    border-radius:3px;
+  }
+  .send-row .ring-btn{ flex:none; padding:9px 16px; font-size:12px; }
+  .chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    background:var(--paper-hi);
+    border:1px solid var(--line);
+    color:var(--ink);
+    padding:6px 10px;
+    border-radius:14px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .chip input{ margin-right:6px; accent-color: var(--teal); }
+
+  .outputs{
+    display:grid;
+    gap:12px;
+  }
+  .outcard{
+    background:var(--paper-hi);
+    border:1px solid var(--line);
+    border-radius:2px;
+    overflow:hidden;
+  }
+  .outcard .tag{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:8px 12px;
+    background:rgba(23,34,43,0.04);
+    border-bottom:1px solid var(--line);
+  }
+  .outcard .tag span{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .copybtn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    background:var(--ink);
+    color:var(--paper-hi);
+    border:none;
+    padding:5px 10px;
+    border-radius:2px;
+    cursor:pointer;
+    transition: background 150ms ease, transform 100ms ease;
+  }
+  .copybtn:hover{ background:var(--teal); }
+  .copybtn.copied{ background:var(--amber-deep); }
+  .outcard pre{
+    margin:0;
+    padding:12px 14px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    line-height:1.6;
+    white-space:pre-wrap;
+    word-break:break-word;
+    color:var(--text);
+    max-height:220px;
+    overflow:auto;
+  }
+  .outcard.empty pre{ color:#9AA39B; font-style:italic; }
+
+  .fieldgrid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px 16px;
+    margin-bottom:18px;
+  }
+  @media (max-width:560px){ .fieldgrid{ grid-template-columns:1fr; } }
+  .field{ display:flex; flex-direction:column; }
+  .field.full{ grid-column:1 / -1; }
+  input.text, select.sel{
+    background:var(--paper-hi);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:9px 11px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:13.5px;
+    color:var(--text);
+  }
+
+  .statgrid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(120px,1fr));
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .stat{
+    background:var(--paper-hi);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:12px 14px;
+  }
+  .stat .num{
+    font-family:'IBM Plex Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    font-size:22px;
+    font-weight:600;
+    color:var(--ink);
+    display:block;
+  }
+  .stat .lbl{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--meta);
+  }
+
+  .targetrow{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .targetrow input.text{ width:110px; }
+  .targetrow span.result{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--teal);
+    font-weight:600;
+  }
+
+  .primary-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    letter-spacing:0.04em;
+    background:var(--teal);
+    color:#EFF4F1;
+    border:none;
+    padding:10px 16px;
+    border-radius:2px;
+    cursor:pointer;
+    transition: background 150ms ease, transform 100ms ease;
+  }
+  .primary-btn:hover{ background:#356965; }
+  .primary-btn:active{ transform: scale(0.98); }
+  .primary-btn.secondary{ background:var(--ink-soft); }
+  .primary-btn.secondary:hover{ background:#3E5062; }
+  .btnrow{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+
+  .picker-stage{
+    background:var(--paper-hi);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:28px 16px;
+    text-align:center;
+    margin-bottom:16px;
+    min-height:70px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .picker-stage .winner{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:clamp(20px,4vw,28px);
+    font-weight:600;
+    color:var(--ink);
+  }
+  .picker-stage .placeholder{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:#9AA39B;
+    font-style:italic;
+  }
+
+  .groupsout{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(160px,1fr));
+    gap:10px;
+  }
+  .groupsout .grp{
+    background:var(--paper-hi);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:10px 12px;
+  }
+  .groupsout .grp h4{
+    margin:0 0 6px 0;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--amber-deep);
+  }
+  .groupsout .grp ul{ margin:0; padding-left:18px; font-size:13px; }
+
+  .mode-tabs{
+    display:flex;
+    gap:6px;
+    background:var(--paper-hi);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:4px;
+    margin-bottom:14px;
+  }
+  .mode-tab{
+    flex:1;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:0.02em;
+    background:transparent;
+    border:none;
+    color:var(--meta);
+    padding:9px 6px;
+    border-radius:6px;
+    cursor:pointer;
+    transition: background 120ms ease, color 120ms ease;
+  }
+  .mode-tab.active{
+    background:var(--ink);
+    color:var(--paper-hi);
+    font-weight:600;
+  }
+  .duration-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+  }
+  .duration-chips{ display:flex; gap:6px; flex-wrap:wrap; }
+  .duration-chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    background:var(--paper-hi);
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+    padding:5px 11px;
+    border-radius:12px;
+    cursor:pointer;
+  }
+  .duration-chip.active{
+    background:var(--amber);
+    border-color:var(--amber-deep);
+    color:var(--ink);
+    font-weight:600;
+  }
+  .ring-wrap{
+    position:relative;
+    width:min(220px, 60vw);
+    height:min(220px, 60vw);
+    margin:6px auto 10px auto;
+  }
+  .ring-svg{ width:100%; height:100%; transform:rotate(-90deg); }
+  .ring-bg{ fill:none; stroke:var(--line); stroke-width:12; }
+  .ring-progress{
+    fill:none;
+    stroke:var(--amber);
+    stroke-width:12;
+    stroke-linecap:round;
+    transition: stroke-dashoffset 0.3s linear, stroke 0.3s ease;
+  }
+  .ring-center{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+  }
+  .ring-center .clock{
+    font-family:'IBM Plex Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    font-size:clamp(34px,8vw,46px);
+    font-weight:600;
+    color:var(--ink);
+    line-height:1;
+  }
+  .ring-center .mode{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--teal);
+    margin-top:6px;
+  }
+  .timer-adjust{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .adjust-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+    padding:6px 12px;
+    border-radius:14px;
+    cursor:pointer;
+    transition: background 120ms ease, border-color 120ms ease;
+  }
+  .adjust-btn:hover{ background:rgba(23,34,43,0.06); border-color:var(--teal); }
+  .timer-controls{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin:6px 0 18px 0;
+    flex-wrap:wrap;
+  }
+  .ring-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    font-weight:600;
+    letter-spacing:0.02em;
+    border-radius:20px;
+    padding:11px 22px;
+    cursor:pointer;
+    border:none;
+    transition: filter 120ms ease, transform 100ms ease;
+  }
+  .ring-btn.primary{ background:var(--amber); color:var(--ink); }
+  .ring-btn.primary:hover{ filter:brightness(1.06); }
+  .ring-btn.secondary{ background:transparent; color:var(--ink-soft); border:1px solid var(--line); }
+  .ring-btn.secondary:hover{ background:rgba(23,34,43,0.05); }
+  .ring-btn:active{ transform:scale(0.97); }
+  .stats-trio{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-bottom:6px;
+  }
+  .stats-trio .stat{ text-align:center; }
+  .stats-trio .num.amber{ color:var(--amber-deep); }
+  .popout-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin-top:16px;
+    flex-wrap:wrap;
+    text-align:center;
+  }
+  .popout-note{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--meta);
+  }
+  .session-log{
+    margin-top:22px;
+    border-top:1px dashed var(--line);
+    padding-top:12px;
+  }
+  .session-log ul{
+    list-style:none;
+    margin:8px 0 0 0;
+    padding:0;
+    max-height:140px;
+    overflow-y:auto;
+  }
+  .session-log li{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    padding:6px 10px;
+    background:var(--paper-hi);
+    border:1px solid var(--line);
+    border-radius:2px;
+    margin-bottom:6px;
+    display:flex;
+    justify-content:space-between;
+  }
+  .session-log li.log-empty{
+    color:#9AA39B;
+    font-style:italic;
+    justify-content:flex-start;
+  }
+
+  .tasks-section{
+    margin-top:20px;
+    border-top:1px dashed var(--line);
+    padding-top:12px;
+  }
+  .tasks-input-row{
+    display:flex;
+    gap:8px;
+    margin:8px 0 10px 0;
+  }
+  .tasks-input-row input.text{ flex:1; }
+  #task-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    max-height:160px;
+    overflow-y:auto;
+  }
+  #task-list li{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:13px;
+    padding:8px 10px;
+    background:var(--paper-hi);
+    border:1px solid var(--line);
+    border-radius:2px;
+    margin-bottom:6px;
+  }
+  #task-list li.log-empty{
+    color:#9AA39B;
+    font-style:italic;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+  }
+  #task-list li input[type="checkbox"]{ accent-color:var(--teal); flex:none; }
+  #task-list li .task-text{ flex:1; }
+  #task-list li.done .task-text{ text-decoration:line-through; color:var(--meta); }
+  #task-list li .task-remove{
+    background:none;
+    border:none;
+    color:var(--meta);
+    cursor:pointer;
+    font-size:14px;
+    padding:0 2px;
+    flex:none;
+  }
+  #task-list li .task-remove:hover{ color:#B5453D; }
+
+  /* Flashcards */
+  .deck-wrap{ margin-top:6px; }
+  .deck-empty{
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:#9AA39B;
+    font-style:italic;
+    padding:40px 10px;
+    border:1px dashed var(--line);
+    border-radius:2px;
+  }
+  .deck-progress{
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
+    color:var(--meta);
+    margin-bottom:10px;
+  }
+  .deck-topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  .deck-topbar .deck-progress{ margin-bottom:0; }
+  .deck-score{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--meta);
+  }
+  .score-controls{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .score-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    font-weight:600;
+    border-radius:16px;
+    padding:8px 16px;
+    cursor:pointer;
+    border:1px solid var(--line);
+    background:var(--paper-hi);
+    transition: background 120ms ease, transform 100ms ease;
+  }
+  .score-btn:active{ transform:scale(0.97); }
+  .score-btn.got{ color:var(--teal); border-color:var(--teal); }
+  .score-btn.got:hover{ background:rgba(63,125,119,0.12); }
+  .score-btn.miss{ color:#B5453D; border-color:#B5453D; }
+  .score-btn.miss:hover{ background:rgba(181,69,61,0.1); }
+  .flashcard{
+    perspective:1200px;
+    max-width:520px;
+    height:250px;
+    margin:0 auto 18px auto;
+    cursor:pointer;
+  }
+  .flashcard-inner{
+    position:relative;
+    width:100%;
+    height:100%;
+    transition:transform 0.5s cubic-bezier(.4,.2,.2,1);
+    transform-style:preserve-3d;
+  }
+  .flashcard.flipped .flashcard-inner{ transform:rotateY(180deg); }
+  .flashcard-face{
+    position:absolute;
+    inset:0;
+    backface-visibility:hidden;
+    border-radius:4px;
+    border:1px solid var(--line);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:22px;
+    gap:10px;
+  }
+  .flashcard-face.front{ background:var(--paper-hi); }
+  .flashcard-face.back{
+    background:var(--ink);
+    color:var(--paper-hi);
+    transform:rotateY(180deg);
+  }
+  .face-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--amber-deep);
+  }
+  .flashcard-face.back .face-label{ color:var(--amber); }
+  .face-text{
+    font-family:'IBM Plex Serif', serif;
+    font-size:clamp(16px,3vw,24px);
+    font-weight:600;
+    line-height:1.35;
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:5;
+    line-clamp:5;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .flip-hint{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:var(--meta);
+  }
+  .flashcard-face.back .flip-hint{ color:#9AA6A2; }
+  .deck-controls{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .deck-summary{
+    max-width:520px;
+    margin:10px auto 0 auto;
+    text-align:center;
+  }
+  .summary-headline{
+    font-family:'IBM Plex Serif', serif;
+    font-weight:600;
+    font-size:22px;
+    color:var(--ink);
+    margin-bottom:6px;
+  }
+  .summary-time{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    color:var(--teal);
+    margin-bottom:18px;
+  }
+  .summary-misses{
+    text-align:left;
+    margin-bottom:18px;
+  }
+  .summary-misses .perfect{
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    color:var(--meta);
+    font-style:italic;
+  }
+  .summary-misses .miss-row{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:13px;
+    padding:8px 12px;
+    background:var(--paper-hi);
+    border:1px solid var(--line);
+    border-radius:2px;
+    margin-bottom:6px;
+  }
+  .summary-misses .miss-row .miss-count{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:#B5453D;
+    flex:none;
+  }
+
+  footer{
+    max-width:980px;
+    margin:26px auto 0 auto;
+    padding-top:16px;
+    border-top:1px solid rgba(238,240,234,0.12);
+    color:#8A9390;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    text-align:center;
+  }
+  footer .credit{
+    color:var(--amber);
+    font-weight:600;
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="logomark" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M5 3.5C5 3.22 5.22 3 5.5 3H15.5L19 6.5V20.5C19 20.78 18.78 21 18.5 21H5.5C5.22 21 5 20.78 5 20.5V3.5Z" stroke="#17222B" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M15 3V6.5C15 6.78 15.22 7 15.5 7H19" stroke="#17222B" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M8 12H16M8 15.5H13" stroke="#17222B" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div>
+    <h1>Paste Bench</h1>
+    <p>Text lands here messy. It leaves in the shape you actually need.</p>
+  </div>
+</header>
+
+<div class="desk">
+  <nav class="tabs" role="tablist" aria-label="Tools">
+    <button class="tab active" data-panel="dewrap" role="tab" aria-selected="true"><span class="idx">A</span>Dewrap</button>
+    <button class="tab" data-panel="listify" role="tab" aria-selected="false"><span class="idx">B</span>Listify</button>
+    <button class="tab" data-panel="case" role="tab" aria-selected="false"><span class="idx">C</span>Case &amp; Slug</button>
+    <button class="tab" data-panel="words" role="tab" aria-selected="false"><span class="idx">D</span>Word Count</button>
+    <button class="tab" data-panel="cite" role="tab" aria-selected="false"><span class="idx">E</span>Flashcards</button>
+    <button class="tab" data-panel="picker" role="tab" aria-selected="false"><span class="idx">F</span>Group Picker</button>
+    <button class="tab" data-panel="timer" role="tab" aria-selected="false"><span class="idx">G</span>Study Timer</button>
+  </nav>
+
+  <main class="card">
+
+    <!-- PANEL A: DEWRAP -->
+    <section class="panel active" id="panel-dewrap">
+      <h2>Dewrap <span class="rule">fix pasted paragraphs</span></h2>
+      <p class="desc">Paste text copied from a PDF or slide deck. It drops the hard line breaks inside paragraphs, rejoins hyphenated words, straightens smart quotes and dashes, and collapses stray whitespace. Real paragraph breaks stay untouched.</p>
+
+      <label class="fieldlabel" for="dewrap-in">Paste here</label>
+      <textarea class="input" id="dewrap-in" placeholder="Try pasting a paragraph copied from a PDF here and see what happens to the line breaks and hyphens."></textarea>
+
+      <div class="options">
+        <label class="chip"><input type="checkbox" id="opt-quotes" checked>Straighten quotes &amp; dashes</label>
+        <label class="chip"><input type="checkbox" id="opt-hyphen" checked>Rejoin hyphenated words</label>
+        <label class="chip"><input type="checkbox" id="opt-space" checked>Collapse extra spaces</label>
+        <label class="chip"><input type="checkbox" id="opt-html">Strip HTML tags</label>
+        <label class="chip"><input type="checkbox" id="opt-urls">Remove URLs</label>
+      </div>
+
+      <div class="meter" id="dewrap-meter"><span><b>0</b> chars in</span><span>&rarr;</span><span><b>0</b> chars out</span></div>
+
+      <div class="outputs">
+        <div class="outcard empty" id="dewrap-outcard">
+          <div class="tag"><span>Cleaned text</span><button class="copybtn" data-copy="dewrap-out">Copy</button></div>
+          <pre id="dewrap-out">Output appears here as you type.</pre>
+        </div>
+        <div class="outcard empty" id="dewrap-sentcard">
+          <div class="tag"><span>One sentence per line</span><button class="copybtn" data-copy="dewrap-sentences">Copy</button></div>
+          <pre id="dewrap-sentences">&mdash;</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL B: LISTIFY -->
+    <section class="panel" id="panel-listify">
+      <h2>Listify <span class="rule">one column, six shapes</span></h2>
+      <p class="desc">Paste a column of items, one per line or separated by commas or tabs. You'll get every common format back at once, ready to drop into code, a spreadsheet, or a query.</p>
+
+      <label class="fieldlabel" for="list-in">Paste items (one per line, or comma/tab separated)</label>
+      <textarea class="input" id="list-in" placeholder="Atlanta
+Boston
+Chicago"></textarea>
+
+      <div class="options">
+        <label class="chip"><input type="checkbox" id="opt-list-sort">Sort A&rarr;Z</label>
+        <label class="chip"><input type="checkbox" id="opt-list-dedupe">Remove duplicates</label>
+      </div>
+
+      <div class="send-row">
+        <button class="ring-btn secondary" id="btn-send-flashcards">&#8594; Send to Flashcards</button>
+        <span class="popout-note" id="send-flashcards-note">Works great with term/answer pairs, like <code>Black hole - a region of spacetime with intense gravity</code></span>
+      </div>
+
+      <div class="meter" id="list-meter"><span><b>0</b> items detected</span></div>
+
+      <div class="outputs">
+        <div class="outcard empty"><div class="tag"><span>Comma separated</span><button class="copybtn" data-copy="list-out-csv">Copy</button></div><pre id="list-out-csv">&mdash;</pre></div>
+        <div class="outcard empty"><div class="tag"><span>Quoted, comma separated</span><button class="copybtn" data-copy="list-out-quoted">Copy</button></div><pre id="list-out-quoted">&mdash;</pre></div>
+        <div class="outcard empty"><div class="tag"><span>JSON array</span><button class="copybtn" data-copy="list-out-json">Copy</button></div><pre id="list-out-json">&mdash;</pre></div>
+        <div class="outcard empty"><div class="tag"><span>SQL IN (&hellip;)</span><button class="copybtn" data-copy="list-out-sql">Copy</button></div><pre id="list-out-sql">&mdash;</pre></div>
+        <div class="outcard empty"><div class="tag"><span>Markdown bullet list</span><button class="copybtn" data-copy="list-out-md">Copy</button></div><pre id="list-out-md">&mdash;</pre></div>
+        <div class="outcard empty"><div class="tag"><span>Numbered list</span><button class="copybtn" data-copy="list-out-num">Copy</button></div><pre id="list-out-num">&mdash;</pre></div>
+        <div class="outcard empty"><div class="tag"><span>Tab separated</span><button class="copybtn" data-copy="list-out-tab">Copy</button></div><pre id="list-out-tab">&mdash;</pre></div>
+        <div class="outcard empty"><div class="tag"><span>Pipe separated</span><button class="copybtn" data-copy="list-out-pipe">Copy</button></div><pre id="list-out-pipe">&mdash;</pre></div>
+      </div>
+    </section>
+
+    <!-- PANEL C: CASE -->
+    <section class="panel" id="panel-case">
+      <h2>Case &amp; Slug <span class="rule">rename anything</span></h2>
+      <p class="desc">Type or paste a phrase once and every casing convention updates together, so you've got what you need for headings, variables, filenames, or URLs.</p>
+
+      <label class="fieldlabel" for="case-in">Text</label>
+      <textarea class="input" id="case-in" style="min-height:60px" placeholder="Quarterly Revenue Report"></textarea>
+
+      <div class="outputs" style="margin-top:16px;">
+        <div class="outcard empty"><div class="tag"><span>UPPER CASE</span><button class="copybtn" data-copy="case-out-upper">Copy</button></div><pre id="case-out-upper">&mdash;</pre></div>
+        <div class="outcard empty"><div class="tag"><span>lower case</span><button class="copybtn" data-copy="case-out-lower">Copy</button></div><pre id="case-out-lower">&mdash;</pre></div>
+        <div class="outcard empty"><div class="tag"><span>Title Case</span><button class="copybtn" data-copy="case-out-title">Copy</button></div><pre id="case-out-title">&mdash;</pre></div>
+        <div class="outcard empty"><div class="tag"><span>Sentence case</span><button class="copybtn" data-copy="case-out-sentence">Copy</button></div><pre id="case-out-sentence">&mdash;</pre></div>
+        <div class="outcard empty"><div class="tag"><span>camelCase</span><button class="copybtn" data-copy="case-out-camel">Copy</button></div><pre id="case-out-camel">&mdash;</pre></div>
+        <div class="outcard empty"><div class="tag"><span>PascalCase</span><button class="copybtn" data-copy="case-out-pascal">Copy</button></div><pre id="case-out-pascal">&mdash;</pre></div>
+        <div class="outcard empty"><div class="tag"><span>snake_case</span><button class="copybtn" data-copy="case-out-snake">Copy</button></div><pre id="case-out-snake">&mdash;</pre></div>
+        <div class="outcard empty"><div class="tag"><span>kebab-case</span><button class="copybtn" data-copy="case-out-kebab">Copy</button></div><pre id="case-out-kebab">&mdash;</pre></div>
+        <div class="outcard empty"><div class="tag"><span>CONSTANT_CASE</span><button class="copybtn" data-copy="case-out-constant">Copy</button></div><pre id="case-out-constant">&mdash;</pre></div>
+        <div class="outcard empty"><div class="tag"><span>dot.case</span><button class="copybtn" data-copy="case-out-dot">Copy</button></div><pre id="case-out-dot">&mdash;</pre></div>
+        <div class="outcard empty"><div class="tag"><span>aLtErNaTiNg CaSe</span><button class="copybtn" data-copy="case-out-alt">Copy</button></div><pre id="case-out-alt">&mdash;</pre></div>
+        <div class="outcard empty"><div class="tag"><span>Reversed</span><button class="copybtn" data-copy="case-out-reverse">Copy</button></div><pre id="case-out-reverse">&mdash;</pre></div>
+      </div>
+    </section>
+
+    <!-- PANEL D: WORD COUNT & READING LEVEL -->
+    <section class="panel" id="panel-words">
+      <h2>Word Count <span class="rule">essays, posts, captions</span></h2>
+      <p class="desc">Paste your writing to see word count, reading time, and an estimated grade level as you go, so you don't have to open a word processor just to check a number.</p>
+
+      <label class="fieldlabel" for="words-in">Your text</label>
+      <textarea class="input" id="words-in" style="min-height:160px" placeholder="Paste or type an essay, post, or paragraph here."></textarea>
+
+      <div class="targetrow">
+        <label class="fieldlabel" style="margin:0;" for="words-target">Word count target</label>
+        <input class="text" type="number" id="words-target" min="0" placeholder="e.g. 500">
+        <span class="result" id="words-target-result"></span>
+      </div>
+
+      <div class="statgrid">
+        <div class="stat"><span class="num" id="stat-words">0</span><span class="lbl">Words</span></div>
+        <div class="stat"><span class="num" id="stat-chars">0</span><span class="lbl">Characters</span></div>
+        <div class="stat"><span class="num" id="stat-chars-nospace">0</span><span class="lbl">Chars (no spaces)</span></div>
+        <div class="stat"><span class="num" id="stat-sentences">0</span><span class="lbl">Sentences</span></div>
+        <div class="stat"><span class="num" id="stat-paragraphs">0</span><span class="lbl">Paragraphs</span></div>
+        <div class="stat"><span class="num" id="stat-unique">0</span><span class="lbl">Unique words</span></div>
+        <div class="stat"><span class="num" id="stat-longest">&mdash;</span><span class="lbl">Longest word</span></div>
+        <div class="stat"><span class="num" id="stat-readtime">0:00</span><span class="lbl">Reading time</span></div>
+        <div class="stat"><span class="num" id="stat-grade">&mdash;</span><span class="lbl">Est. grade level</span></div>
+      </div>
+      <p class="desc" style="margin-top:-8px;">Grade level is a rough estimate (Flesch&ndash;Kincaid) based on sentence and word length. Treat it as a sanity check, not an actual grade.</p>
+
+      <div class="outputs" style="margin-top:16px;">
+        <div class="outcard empty">
+          <div class="tag"><span>Most frequent words</span><button class="copybtn" data-copy="words-frequent">Copy</button></div>
+          <pre id="words-frequent">&mdash;</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL E: FLASHCARDS -->
+    <section class="panel" id="panel-cite">
+      <h2>Flashcards <span class="rule">paste, flip, learn</span></h2>
+      <p class="desc">Type or paste term and definition pairs, one per line, separated by a colon, dash, equals sign, or tab. Then press Start Studying to flip through your deck.</p>
+
+      <div id="cards-setup">
+        <label class="fieldlabel" for="cards-in">Term : Definition (one pair per line)</label>
+        <textarea class="input" id="cards-in" style="min-height:140px" placeholder="Mitochondria : The powerhouse of the cell
+Photosynthesis - How plants turn light into energy
+Osmosis = Movement of water across a membrane"></textarea>
+        <div class="send-row" style="margin-top:14px;">
+          <button class="ring-btn primary" id="cards-start">Start Studying &rarr;</button>
+          <span class="popout-note" id="cards-setup-note">Add at least one term : definition pair, then press start.</span>
+        </div>
+      </div>
+
+      <div class="deck-wrap" id="deck-wrap" style="display:none;">
+        <div class="deck-topbar">
+          <button class="ring-btn secondary" id="cards-edit">&larr; Edit deck</button>
+          <div class="deck-progress" id="deck-progress">1 / 1</div>
+          <div class="deck-score" id="deck-score">Round 1 &middot; 0 to master</div>
+        </div>
+        <div class="flashcard" id="flashcard" tabindex="0" role="button" aria-label="Flip card">
+          <div class="flashcard-inner" id="flashcard-inner">
+            <div class="flashcard-face front">
+              <span class="face-label">Term</span>
+              <span class="face-text" id="card-term">&mdash;</span>
+              <span class="flip-hint">Click or press space to flip</span>
+            </div>
+            <div class="flashcard-face back">
+              <span class="face-label">Definition</span>
+              <span class="face-text" id="card-def">&mdash;</span>
+              <span class="flip-hint">Click to flip back</span>
+            </div>
+          </div>
+        </div>
+        <div class="score-controls">
+          <button class="score-btn miss" id="card-miss">&#10007; Still learning</button>
+          <button class="score-btn got" id="card-got">&#10003; Got it</button>
+        </div>
+        <div class="deck-controls">
+          <button class="ring-btn secondary" id="card-prev">&larr; Prev</button>
+          <button class="ring-btn secondary" id="card-shuffle">Shuffle</button>
+          <button class="ring-btn primary" id="card-next">Next &rarr;</button>
+        </div>
+      </div>
+
+      <div class="deck-summary" id="deck-summary" style="display:none;">
+        <div class="summary-headline" id="summary-headline">&#127881; Deck mastered!</div>
+        <div class="summary-time" id="summary-time">Time taken: 0:00</div>
+        <div class="summary-misses" id="summary-misses"></div>
+        <div class="deck-controls">
+          <button class="ring-btn secondary" id="summary-edit">&larr; Edit deck</button>
+          <button class="ring-btn primary" id="summary-restart">Study again</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANEL F: GROUP PICKER -->
+    <section class="panel" id="panel-picker">
+      <h2>Group Picker <span class="rule">randomize fairly</span></h2>
+      <p class="desc">Paste names, one per line, then shuffle the order, pick one at random, or split everyone into even groups. Handy for presentation order, cold-calling, or group projects.</p>
+
+      <label class="fieldlabel" for="picker-in">Names</label>
+      <textarea class="input" id="picker-in" style="min-height:110px" placeholder="Alex
+Priya
+Jordan
+Sam
+Mateo
+Nina"></textarea>
+
+      <div class="btnrow">
+        <button class="primary-btn" id="btn-pick-one">Pick one at random</button>
+        <button class="primary-btn secondary" id="btn-shuffle">Shuffle order</button>
+      </div>
+
+      <div class="options">
+        <label class="chip"><input type="checkbox" id="opt-avoid-repeat">Don't repeat a pick until everyone's had a turn</label>
+      </div>
+
+      <div class="picker-stage">
+        <span class="placeholder" id="picker-result">Add names above, then pick.</span>
+      </div>
+
+      <div class="targetrow">
+        <label class="fieldlabel" style="margin:0;" for="picker-count">Pick multiple</label>
+        <input class="text" type="number" id="picker-count" min="1" value="2" style="width:70px;">
+        <button class="primary-btn secondary" id="btn-pick-multi">Pick winners</button>
+      </div>
+
+      <div class="targetrow">
+        <label class="fieldlabel" style="margin:0;" for="picker-groupsize">Group size</label>
+        <input class="text" type="number" id="picker-groupsize" min="2" value="3" style="width:80px;">
+        <button class="primary-btn secondary" id="btn-groups">Make groups</button>
+      </div>
+
+      <div class="groupsout" id="picker-groups"></div>
+    </section>
+
+    <!-- PANEL G: STUDY TIMER -->
+    <section class="panel" id="panel-timer">
+      <h2>Study Timer <span class="rule">focus / break cycles</span></h2>
+      <p class="desc">A focus timer that switches between work and break automatically. Pop it out to keep it floating on top of other windows while you work.</p>
+
+      <div class="mode-tabs" id="mode-tabs">
+        <button class="mode-tab active" data-mode="focus">Focus</button>
+        <button class="mode-tab" data-mode="short">Short Break</button>
+        <button class="mode-tab" data-mode="long">Long Break</button>
+      </div>
+
+      <div class="duration-row">
+        <span class="fieldlabel" style="margin:0;">Duration:</span>
+        <div class="duration-chips" id="duration-chips"></div>
+      </div>
+
+      <div class="ring-wrap">
+        <svg viewBox="0 0 220 220" class="ring-svg">
+          <circle cx="110" cy="110" r="96" class="ring-bg"></circle>
+          <circle cx="110" cy="110" r="96" class="ring-progress" id="ring-progress"></circle>
+        </svg>
+        <div class="ring-center">
+          <div class="clock" id="timer-clock">25:00</div>
+          <div class="mode" id="timer-mode">Deep Focus</div>
+        </div>
+      </div>
+
+      <div class="timer-adjust">
+        <button class="adjust-btn" id="timer-minus">&minus;1 min</button>
+        <button class="adjust-btn" id="timer-plus">+1 min</button>
+      </div>
+
+      <div class="timer-controls">
+        <button class="ring-btn primary" id="timer-toggle">&#9654; Start</button>
+        <button class="ring-btn secondary" id="timer-reset">Reset</button>
+      </div>
+
+      <div class="stats-trio">
+        <div class="stat"><span class="num" id="stat-sessions">0</span><span class="lbl">Sessions</span></div>
+        <div class="stat"><span class="num amber" id="stat-total">0m</span><span class="lbl">Total study</span></div>
+        <div class="stat"><span class="num" id="stat-cycles-done">0</span><span class="lbl">Cycles</span></div>
+      </div>
+
+      <div class="popout-row">
+        <button class="primary-btn secondary" id="timer-popout">&#8599; Pop out floating timer</button>
+        <span class="popout-note" id="popout-note"></span>
+      </div>
+
+      <div class="session-log">
+        <label class="fieldlabel">Session log</label>
+        <ul id="timer-log"><li class="log-empty">Completed focus sessions will show up here.</li></ul>
+      </div>
+
+      <div class="tasks-section">
+        <label class="fieldlabel">Session tasks</label>
+        <div class="tasks-input-row">
+          <input class="text" id="task-input" placeholder="Add a task for this session&hellip;">
+          <button class="primary-btn" id="task-add">Add</button>
+        </div>
+        <ul id="task-list"><li class="log-empty">No tasks yet. Add what you're working on.</li></ul>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>made by <span class="credit">XDabXking</span></footer>
+
+<script>
+(function(){
+  // ---------- Tab switching ----------
+  var tabs = document.querySelectorAll('.tab');
+  tabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      tabs.forEach(function(t){ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+      document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected','true');
+      document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+    });
+  });
+
+  // ---------- Copy buttons ----------
+  document.querySelectorAll('.copybtn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var srcId = btn.dataset.copy;
+      var text = document.getElementById(srcId).textContent;
+      if(!text || text === '\u2014') return;
+      var doCopy = function(){
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function(){ btn.textContent='Copy'; btn.classList.remove('copied'); }, 1100);
+      };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(doCopy).catch(function(){ fallbackCopy(text); doCopy(); });
+      } else {
+        fallbackCopy(text); doCopy();
+      }
+    });
+  });
+  function fallbackCopy(text){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta);
+  }
+
+  // ---------- A: Dewrap ----------
+  var dewrapIn = document.getElementById('dewrap-in');
+  var dewrapOut = document.getElementById('dewrap-out');
+  var dewrapCard = document.getElementById('dewrap-outcard');
+  var dewrapMeter = document.getElementById('dewrap-meter');
+  var dewrapSentCard = document.getElementById('dewrap-sentcard');
+  var dewrapSentences = document.getElementById('dewrap-sentences');
+  ['opt-quotes','opt-hyphen','opt-space','opt-html','opt-urls'].forEach(function(id){
+    document.getElementById(id).addEventListener('change', runDewrap);
+  });
+  dewrapIn.addEventListener('input', runDewrap);
+
+  function runDewrap(){
+    var raw = dewrapIn.value;
+    if(!raw){
+      dewrapOut.textContent = 'Output appears here as you type.';
+      dewrapCard.classList.add('empty');
+      dewrapSentences.textContent = '\u2014';
+      dewrapSentCard.classList.add('empty');
+      dewrapMeter.innerHTML = '<span><b>0</b> chars in</span><span>&rarr;</span><span><b>0</b> chars out</span>';
+      return;
+    }
+    var text = raw;
+    var straightenQuotes = document.getElementById('opt-quotes').checked;
+    var rejoinHyphen = document.getElementById('opt-hyphen').checked;
+    var collapseSpace = document.getElementById('opt-space').checked;
+    var stripHtml = document.getElementById('opt-html').checked;
+    var removeUrls = document.getElementById('opt-urls').checked;
+
+    if(stripHtml){
+      text = text.replace(/<[^>]*>/g, ' ');
+    }
+    if(removeUrls){
+      text = text.replace(/\bhttps?:\/\/\S+/gi, '').replace(/\bwww\.\S+/gi, '');
+    }
+    if(straightenQuotes){
+      text = text
+        .replace(/[\u2018\u2019\u201A\u2032]/g, "'")
+        .replace(/[\u201C\u201D\u201E\u2033]/g, '"')
+        .replace(/[\u2013\u2014]/g, '-')
+        .replace(/\u2026/g, '...');
+    }
+    if(rejoinHyphen){
+      // word broken across a line by a hyphen: "exam-\nple" -> "example"
+      text = text.replace(/([A-Za-z])-\n\s*([a-z])/g, '$1$2');
+    }
+    // normalize paragraph breaks (2+ newlines) with a placeholder, then collapse single newlines to spaces
+    text = text.replace(/\r\n/g, '\n');
+    text = text.replace(/\n{2,}/g, '\u0001');
+    text = text.replace(/\n/g, ' ');
+    text = text.replace(/\u0001/g, '\n\n');
+
+    if(collapseSpace){
+      text = text.replace(/[ \t]{2,}/g, ' ');
+      text = text.split('\n').map(function(l){ return l.trim(); }).join('\n');
+      text = text.replace(/\n{3,}/g, '\n\n');
+    }
+    text = text.trim();
+
+    dewrapOut.textContent = text || '\u2014';
+    dewrapCard.classList.toggle('empty', !text);
+    dewrapMeter.innerHTML = '<span><b>'+raw.length+'</b> chars in</span><span>&rarr;</span><span><b>'+text.length+'</b> chars out</span>';
+
+    if(text){
+      var sentenceLines = text
+        .replace(/\n+/g, ' ')
+        .replace(/([.!?])\s+(?=[A-Z0-9"'\u201C])/g, '$1\n')
+        .split('\n')
+        .map(function(s){ return s.trim(); })
+        .filter(Boolean);
+      dewrapSentences.textContent = sentenceLines.join('\n') || '\u2014';
+      dewrapSentCard.classList.toggle('empty', sentenceLines.length === 0);
+    } else {
+      dewrapSentences.textContent = '\u2014';
+      dewrapSentCard.classList.add('empty');
+    }
+  }
+
+  // ---------- B: Listify ----------
+  var listIn = document.getElementById('list-in');
+  var listMeter = document.getElementById('list-meter');
+  listIn.addEventListener('input', runListify);
+  document.getElementById('opt-list-sort').addEventListener('change', runListify);
+  document.getElementById('opt-list-dedupe').addEventListener('change', runListify);
+
+  function parseItems(raw){
+    if(!raw.trim()) return [];
+    var normalized = raw.replace(/\r\n/g, '\n');
+    var pieces;
+    if(normalized.indexOf('\n') === -1 && (normalized.indexOf(',') !== -1 || normalized.indexOf('\t') !== -1)){
+      pieces = normalized.split(/[,\t]/);
+    } else {
+      pieces = normalized.split('\n');
+      if(pieces.length === 1 && pieces[0].indexOf(',') !== -1){
+        pieces = pieces[0].split(',');
+      }
+    }
+    return pieces.map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+  }
+
+  function setOut(id, text, isEmpty){
+    var el = document.getElementById(id);
+    el.textContent = text;
+    el.closest('.outcard').classList.toggle('empty', isEmpty);
+  }
+
+  function runListify(){
+    var items = parseItems(listIn.value);
+    var dedupe = document.getElementById('opt-list-dedupe').checked;
+    var sort = document.getElementById('opt-list-sort').checked;
+    var allIds = ['list-out-csv','list-out-quoted','list-out-json','list-out-sql','list-out-md','list-out-num','list-out-tab','list-out-pipe'];
+
+    if(items.length === 0){
+      listMeter.innerHTML = '<span><b>0</b> items detected</span>';
+      allIds.forEach(function(id){ setOut(id, '\u2014', true); });
+      return;
+    }
+
+    if(dedupe){
+      var seen = {};
+      items = items.filter(function(i){
+        var key = i.toLowerCase();
+        if(seen[key]) return false;
+        seen[key] = true;
+        return true;
+      });
+    }
+    if(sort){
+      items = items.slice().sort(function(a,b){ return a.localeCompare(b, undefined, {sensitivity:'base'}); });
+    }
+
+    listMeter.innerHTML = '<span><b>'+items.length+'</b> items detected</span>';
+    setOut('list-out-csv', items.join(', '), false);
+    setOut('list-out-quoted', items.map(function(i){ return '"'+i.replace(/"/g,'\\"')+'"'; }).join(', '), false);
+    setOut('list-out-json', JSON.stringify(items, null, 2), false);
+    setOut('list-out-sql', 'IN (' + items.map(function(i){ return "'"+i.replace(/'/g,"''")+"'"; }).join(', ') + ')', false);
+    setOut('list-out-md', items.map(function(i){ return '- '+i; }).join('\n'), false);
+    setOut('list-out-num', items.map(function(i,idx){ return (idx+1)+'. '+i; }).join('\n'), false);
+    setOut('list-out-tab', items.join('\t'), false);
+    setOut('list-out-pipe', items.join(' | '), false);
+  }
+
+  // ---------- C: Case & Slug ----------
+  var caseIn = document.getElementById('case-in');
+  caseIn.addEventListener('input', runCase);
+
+  function words(str){
+    return str
+      .trim()
+      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+      .split(/[\s_\-]+/)
+      .filter(Boolean);
+  }
+
+  function runCase(){
+    var raw = caseIn.value;
+    var allIds = ['case-out-upper','case-out-lower','case-out-title','case-out-sentence','case-out-camel','case-out-pascal','case-out-snake','case-out-kebab','case-out-constant','case-out-dot','case-out-alt','case-out-reverse'];
+    if(!raw.trim()){
+      allIds.forEach(function(id){ setOut(id, '\u2014', true); });
+      return;
+    }
+    var w = words(raw);
+    var lowerWords = w.map(function(x){ return x.toLowerCase(); });
+
+    var upper = raw.toUpperCase();
+    var lower = raw.toLowerCase();
+    var title = lowerWords.map(function(x){ return x.charAt(0).toUpperCase()+x.slice(1); }).join(' ');
+    var sentence = lowerWords.join(' ');
+    sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1);
+    var camel = lowerWords.map(function(x,i){ return i===0 ? x : x.charAt(0).toUpperCase()+x.slice(1); }).join('');
+    var pascal = lowerWords.map(function(x){ return x.charAt(0).toUpperCase()+x.slice(1); }).join('');
+    var snake = lowerWords.join('_');
+    var kebab = lowerWords.join('-');
+    var constant = lowerWords.join('_').toUpperCase();
+    var dot = lowerWords.join('.');
+    var alt = raw.split('').map(function(ch,i){ return i % 2 === 0 ? ch.toLowerCase() : ch.toUpperCase(); }).join('');
+    var reversed = raw.split('').reverse().join('');
+
+    setOut('case-out-upper', upper, false);
+    setOut('case-out-lower', lower, false);
+    setOut('case-out-title', title, false);
+    setOut('case-out-sentence', sentence, false);
+    setOut('case-out-camel', camel, false);
+    setOut('case-out-pascal', pascal, false);
+    setOut('case-out-snake', snake, false);
+    setOut('case-out-kebab', kebab, false);
+    setOut('case-out-constant', constant, false);
+    setOut('case-out-dot', dot, false);
+    setOut('case-out-alt', alt, false);
+    setOut('case-out-reverse', reversed, false);
+  }
+
+  // ---------- D: Word Count & Reading Level ----------
+  var wordsIn = document.getElementById('words-in');
+  var wordsTarget = document.getElementById('words-target');
+  wordsIn.addEventListener('input', runWords);
+  wordsTarget.addEventListener('input', runWords);
+
+  function countSyllables(word){
+    word = word.toLowerCase().replace(/[^a-z]/g,'');
+    if(word.length <= 3) return 1;
+    word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/,'');
+    word = word.replace(/^y/,'');
+    var matches = word.match(/[aeiouy]{1,2}/g);
+    return matches ? matches.length : 1;
+  }
+
+  function runWords(){
+    var raw = wordsIn.value;
+    var trimmed = raw.trim();
+    var wordList = trimmed ? trimmed.split(/\s+/) : [];
+    var wordCount = wordList.length;
+    var charCount = raw.length;
+    var charNoSpace = raw.replace(/\s/g, '').length;
+    var sentences = trimmed ? (trimmed.match(/[.!?]+(\s|$)/g) || []) : [];
+    var sentenceCount = Math.max(sentences.length, trimmed ? 1 : 0);
+    var paragraphCount = trimmed ? trimmed.split(/\n{2,}/).filter(function(p){return p.trim();}).length : 0;
+
+    document.getElementById('stat-words').textContent = wordCount;
+    document.getElementById('stat-chars').textContent = charCount;
+    document.getElementById('stat-chars-nospace').textContent = charNoSpace;
+    document.getElementById('stat-sentences').textContent = sentenceCount;
+    document.getElementById('stat-paragraphs').textContent = paragraphCount;
+
+    var cleanWords = wordList.map(function(w){ return w.toLowerCase().replace(/[^a-z0-9']/g,''); }).filter(Boolean);
+    var uniqueSet = {};
+    cleanWords.forEach(function(w){ uniqueSet[w] = true; });
+    document.getElementById('stat-unique').textContent = Object.keys(uniqueSet).length;
+
+    var longest = '';
+    wordList.forEach(function(w){
+      var clean = w.replace(/[^a-zA-Z0-9'-]/g,'');
+      if(clean.length > longest.length) longest = clean;
+    });
+    document.getElementById('stat-longest').textContent = longest || '\u2014';
+
+    var minutes = wordCount / 200;
+    var mm = Math.floor(minutes);
+    var ss = Math.round((minutes - mm) * 60);
+    if(ss === 60){ mm += 1; ss = 0; }
+    document.getElementById('stat-readtime').textContent = mm + ':' + (ss<10?'0':'') + ss;
+
+    var gradeEl = document.getElementById('stat-grade');
+    if(wordCount >= 3 && sentenceCount > 0){
+      var syllableTotal = wordList.reduce(function(sum,w){ return sum + countSyllables(w); }, 0);
+      var grade = 0.39 * (wordCount / sentenceCount) + 11.8 * (syllableTotal / wordCount) - 15.59;
+      grade = Math.max(0, Math.round(grade * 10) / 10);
+      gradeEl.textContent = grade;
+    } else {
+      gradeEl.textContent = '\u2014';
+    }
+
+    var freqEl = document.getElementById('words-frequent');
+    var freqCard = freqEl.closest('.outcard');
+    var STOPWORDS = {the:1,a:1,an:1,and:1,or:1,but:1,of:1,in:1,on:1,to:1,is:1,it:1,for:1,with:1,as:1,was:1,were:1,are:1,be:1,this:1,that:1,at:1,by:1,from:1,i:1,you:1,he:1,she:1,they:1,we:1};
+    var freq = {};
+    cleanWords.forEach(function(w){
+      if(w.length < 3 || STOPWORDS[w]) return;
+      freq[w] = (freq[w]||0) + 1;
+    });
+    var freqList = Object.keys(freq).map(function(w){ return [w, freq[w]]; }).filter(function(pair){ return pair[1] > 1; });
+    freqList.sort(function(a,b){ return b[1]-a[1]; });
+    freqList = freqList.slice(0,8);
+    if(freqList.length){
+      freqEl.textContent = freqList.map(function(p){ return p[0] + ' \u00d7 ' + p[1]; }).join('\n');
+      freqCard.classList.remove('empty');
+    } else {
+      freqEl.textContent = '\u2014';
+      freqCard.classList.add('empty');
+    }
+
+    var resultEl = document.getElementById('words-target-result');
+    var target = parseInt(wordsTarget.value, 10);
+    if(target && target > 0){
+      var diff = target - wordCount;
+      resultEl.textContent = diff > 0 ? (diff + ' words to go') : diff < 0 ? ((-diff) + ' words over') : 'Right on target';
+    } else {
+      resultEl.textContent = '';
+    }
+  }
+
+  // ---------- E: Flashcards ----------
+  var cardsIn = document.getElementById('cards-in');
+  var cardsSetup = document.getElementById('cards-setup');
+  var cardsSetupNote = document.getElementById('cards-setup-note');
+  var deckWrap = document.getElementById('deck-wrap');
+  var deckSummary = document.getElementById('deck-summary');
+  var deckProgress = document.getElementById('deck-progress');
+  var deckScoreEl = document.getElementById('deck-score');
+  var flashcard = document.getElementById('flashcard');
+  var cardTerm = document.getElementById('card-term');
+  var cardDef = document.getElementById('card-def');
+
+  var masterDeck = [];   // full set of {term, def}, fixed for the session
+  var missCounts = [];   // parallel array: how many times each masterDeck index has been missed
+  var currentRound = []; // array of masterDeck indices still being studied this round
+  var roundIndex = 0;    // position within currentRound
+  var nextRoundMisses = []; // indices missed during this round, becomes next round
+  var roundNumber = 1;
+  var studyStartTime = null;
+
+  function parseDeck(raw){
+    if(!raw.trim()) return [];
+    return raw.split(/\r?\n/).map(function(line){
+      if(!line.trim()) return null;
+      // explicit delimiters only: tab, colon, " - ", "--", " = "
+      var m = line.match(/^\s*(.+?)\s*(?:\t|:|\s-\s|--|\s=\s)\s*(.+?)\s*$/);
+      if(!m) return null;
+      var term = m[1].trim();
+      var def = m[2].trim();
+      if(!term || !def) return null;
+      return { term: term, def: def };
+    }).filter(Boolean);
+  }
+
+  function shuffleIndices(arr){
+    var a = arr.slice();
+    for(var i = a.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  function currentCard(){
+    return masterDeck[currentRound[roundIndex]];
+  }
+
+  function renderCard(){
+    if(currentRound.length === 0) return;
+    flashcard.classList.remove('flipped');
+    var card = currentCard();
+    cardTerm.textContent = card.term;
+    cardDef.textContent = card.def;
+    deckProgress.textContent = (roundIndex + 1) + ' / ' + currentRound.length;
+    deckScoreEl.textContent = 'Round ' + roundNumber + ' \u00b7 ' + currentRound.length + ' to master';
+  }
+
+  function showSetup(){
+    deckWrap.style.display = 'none';
+    deckSummary.style.display = 'none';
+    cardsSetup.style.display = '';
+  }
+  function showDeck(){
+    cardsSetup.style.display = 'none';
+    deckSummary.style.display = 'none';
+    deckWrap.style.display = '';
+  }
+  function showSummary(){
+    cardsSetup.style.display = 'none';
+    deckWrap.style.display = 'none';
+    deckSummary.style.display = '';
+  }
+
+  function startStudying(){
+    masterDeck = parseDeck(cardsIn.value);
+    if(masterDeck.length === 0){
+      cardsSetupNote.textContent = "Couldn't find any term and definition pairs. Check your formatting and try again.";
+      return;
+    }
+    cardsSetupNote.textContent = 'Add at least one term : definition pair, then press start.';
+    missCounts = masterDeck.map(function(){ return 0; });
+    currentRound = shuffleIndices(masterDeck.map(function(_, i){ return i; }));
+    roundIndex = 0;
+    nextRoundMisses = [];
+    roundNumber = 1;
+    studyStartTime = Date.now();
+    renderCard();
+    showDeck();
+  }
+  document.getElementById('cards-start').addEventListener('click', startStudying);
+  document.getElementById('cards-edit').addEventListener('click', showSetup);
+  document.getElementById('summary-edit').addEventListener('click', showSetup);
+  document.getElementById('summary-restart').addEventListener('click', startStudying);
+
+  function formatElapsed(ms){
+    var totalSec = Math.max(0, Math.round(ms / 1000));
+    var m = Math.floor(totalSec / 60);
+    var s = totalSec % 60;
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  function finishSession(){
+    var elapsed = Date.now() - studyStartTime;
+    document.getElementById('summary-time').textContent = 'Time taken: ' + formatElapsed(elapsed);
+    var missesEl = document.getElementById('summary-misses');
+    var missedCards = [];
+    missCounts.forEach(function(count, i){
+      if(count > 0) missedCards.push({ term: masterDeck[i].term, count: count });
+    });
+    if(missedCards.length === 0){
+      missesEl.innerHTML = '<div class="perfect">Perfect run. Every card right on the first try.</div>';
+    } else {
+      missedCards.sort(function(a,b){ return b.count - a.count; });
+      missesEl.innerHTML = missedCards.map(function(m){
+        return '<div class="miss-row"><span>' + m.term + '</span><span class="miss-count">missed ' + m.count + '&times;</span></div>';
+      }).join('');
+    }
+    showSummary();
+  }
+
+  function advanceAfterAnswer(){
+    if(roundIndex < currentRound.length - 1){
+      roundIndex++;
+      renderCard();
+      return;
+    }
+    // reached the end of this round
+    if(nextRoundMisses.length === 0){
+      finishSession();
+      return;
+    }
+    currentRound = shuffleIndices(nextRoundMisses);
+    nextRoundMisses = [];
+    roundIndex = 0;
+    roundNumber++;
+    renderCard();
+  }
+
+  function nextCard(){
+    if(currentRound.length === 0) return;
+    roundIndex = (roundIndex + 1) % currentRound.length;
+    renderCard();
+  }
+  function prevCard(){
+    if(currentRound.length === 0) return;
+    roundIndex = (roundIndex - 1 + currentRound.length) % currentRound.length;
+    renderCard();
+  }
+
+  flashcard.addEventListener('click', function(){
+    flashcard.classList.toggle('flipped');
+  });
+  flashcard.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      flashcard.classList.toggle('flipped');
+    }
+  });
+  document.addEventListener('keydown', function(e){
+    var deckVisible = deckWrap.style.display !== 'none';
+    var panelActive = document.getElementById('panel-cite').classList.contains('active');
+    if(!panelActive || !deckVisible || currentRound.length === 0) return;
+    var tag = (document.activeElement && document.activeElement.tagName) || '';
+    if(tag === 'TEXTAREA' || tag === 'INPUT') return;
+    if(e.key === 'ArrowRight'){ e.preventDefault(); nextCard(); }
+    if(e.key === 'ArrowLeft'){ e.preventDefault(); prevCard(); }
+  });
+
+  document.getElementById('card-next').addEventListener('click', nextCard);
+  document.getElementById('card-prev').addEventListener('click', prevCard);
+  document.getElementById('card-shuffle').addEventListener('click', function(){
+    if(currentRound.length === 0) return;
+    currentRound = shuffleIndices(currentRound);
+    roundIndex = 0;
+    renderCard();
+  });
+  document.getElementById('card-got').addEventListener('click', function(){
+    if(currentRound.length === 0) return;
+    advanceAfterAnswer();
+  });
+  document.getElementById('card-miss').addEventListener('click', function(){
+    if(currentRound.length === 0) return;
+    var idx = currentRound[roundIndex];
+    missCounts[idx]++;
+    if(nextRoundMisses.indexOf(idx) === -1) nextRoundMisses.push(idx);
+    advanceAfterAnswer();
+  });
+
+  // ---- Send list from Listify straight into Flashcards (setup view, not auto-started) ----
+  document.getElementById('btn-send-flashcards').addEventListener('click', function(){
+    var text = document.getElementById('list-in').value;
+    if(!text.trim()) return;
+    cardsIn.value = text;
+    showSetup();
+    document.querySelectorAll('.tab').forEach(function(t){
+      var isCite = t.dataset.panel === 'cite';
+      t.classList.toggle('active', isCite);
+      t.setAttribute('aria-selected', isCite ? 'true' : 'false');
+    });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    document.getElementById('panel-cite').classList.add('active');
+    var btn = document.getElementById('btn-send-flashcards');
+    var original = btn.textContent;
+    btn.textContent = 'Sent!';
+    setTimeout(function(){ btn.textContent = original; }, 1200);
+  });
+
+  // ---------- F: Group Picker ----------
+  var pickerIn = document.getElementById('picker-in');
+  var pickerResult = document.getElementById('picker-result');
+  var usedPicks = {};
+
+  function shuffle(arr){
+    var a = arr.slice();
+    for(var i = a.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  pickerIn.addEventListener('input', function(){ usedPicks = {}; });
+
+  document.getElementById('btn-pick-one').addEventListener('click', function(){
+    var names = parseItems(pickerIn.value);
+    if(names.length === 0){
+      pickerResult.className = 'placeholder';
+      pickerResult.textContent = 'Add names above, then pick.';
+      return;
+    }
+    var avoidRepeat = document.getElementById('opt-avoid-repeat').checked;
+    var pool = names;
+    if(avoidRepeat){
+      pool = names.filter(function(n){ return !usedPicks[n]; });
+      if(pool.length === 0){
+        usedPicks = {};
+        pool = names;
+      }
+    }
+    var pick = pool[Math.floor(Math.random() * pool.length)];
+    if(avoidRepeat) usedPicks[pick] = true;
+    pickerResult.className = 'winner';
+    pickerResult.style.fontSize = '';
+    pickerResult.textContent = pick;
+  });
+
+  document.getElementById('btn-pick-multi').addEventListener('click', function(){
+    var names = parseItems(pickerIn.value);
+    var count = Math.max(1, parseInt(document.getElementById('picker-count').value, 10) || 1);
+    if(names.length === 0){
+      pickerResult.className = 'placeholder';
+      pickerResult.textContent = 'Add names above, then pick.';
+      return;
+    }
+    var winners = shuffle(names).slice(0, Math.min(count, names.length));
+    pickerResult.className = 'winner';
+    pickerResult.style.fontSize = 'clamp(16px,3vw,22px)';
+    pickerResult.textContent = winners.join('  \u00b7  ');
+  });
+
+  document.getElementById('btn-shuffle').addEventListener('click', function(){
+    var names = parseItems(pickerIn.value);
+    if(names.length === 0){
+      pickerResult.className = 'placeholder';
+      pickerResult.textContent = 'Add names above, then shuffle.';
+      return;
+    }
+    pickerResult.className = 'winner';
+    pickerResult.style.fontSize = 'clamp(14px,2.4vw,17px)';
+    pickerResult.textContent = shuffle(names).join('  \u2192  ');
+  });
+
+  document.getElementById('btn-groups').addEventListener('click', function(){
+    var names = shuffle(parseItems(pickerIn.value));
+    var size = parseInt(document.getElementById('picker-groupsize').value, 10) || 2;
+    var out = document.getElementById('picker-groups');
+    out.innerHTML = '';
+    if(names.length === 0) return;
+    var groups = [];
+    for(var i = 0; i < names.length; i += size){
+      groups.push(names.slice(i, i + size));
+    }
+    groups.forEach(function(g, idx){
+      var div = document.createElement('div');
+      div.className = 'grp';
+      var h4 = document.createElement('h4');
+      h4.textContent = 'Group ' + (idx + 1);
+      var ul = document.createElement('ul');
+      g.forEach(function(n){
+        var li = document.createElement('li');
+        li.textContent = n;
+        ul.appendChild(li);
+      });
+      div.appendChild(h4); div.appendChild(ul);
+      out.appendChild(div);
+    });
+  });
+
+  // ---------- G: Study Timer ----------
+  var timerClock = document.getElementById('timer-clock');
+  var timerMode = document.getElementById('timer-mode');
+  var ringProgress = document.getElementById('ring-progress');
+  var toggleBtn = document.getElementById('timer-toggle');
+  var durationChipsWrap = document.getElementById('duration-chips');
+  var RING_CIRCUMFERENCE = 2 * Math.PI * 96;
+  ringProgress.style.strokeDasharray = RING_CIRCUMFERENCE;
+  ringProgress.style.strokeDashoffset = 0;
+
+  var DURATIONS = {
+    focus: [15, 25, 30, 45, 60],
+    short: [5, 10, 15],
+    long: [15, 20, 30]
+  };
+  var MODE_LABEL = { focus: 'Deep Focus', short: 'Short Break', long: 'Long Break' };
+  var selectedMinutes = { focus: 25, short: 5, long: 15 };
+  var currentMode = 'focus';
+
+  var timerInterval = null;
+  var totalSecondsForMode = selectedMinutes.focus * 60;
+  var timerSeconds = totalSecondsForMode;
+  var timerRunning = false;
+  var sessionsCompleted = 0;
+  var totalStudyMinutes = 0;
+  var pipWindow = null;
+  var pipEls = null;
+
+  function formatClock(s){
+    var m = Math.floor(s / 60);
+    var sec = s % 60;
+    return m + ':' + (sec < 10 ? '0' : '') + sec;
+  }
+
+  function renderDurationChips(){
+    durationChipsWrap.innerHTML = '';
+    DURATIONS[currentMode].forEach(function(mins){
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'duration-chip' + (mins === selectedMinutes[currentMode] ? ' active' : '');
+      chip.textContent = mins + 'm';
+      chip.addEventListener('click', function(){
+        selectedMinutes[currentMode] = mins;
+        if(!timerRunning){
+          totalSecondsForMode = mins * 60;
+          timerSeconds = totalSecondsForMode;
+          renderTimer();
+        }
+        renderDurationChips();
+      });
+      durationChipsWrap.appendChild(chip);
+    });
+  }
+
+  function switchMode(mode){
+    if(timerRunning) return;
+    currentMode = mode;
+    document.querySelectorAll('.mode-tab').forEach(function(t){
+      t.classList.toggle('active', t.dataset.mode === mode);
+    });
+    totalSecondsForMode = selectedMinutes[mode] * 60;
+    timerSeconds = totalSecondsForMode;
+    renderDurationChips();
+    renderTimer();
+  }
+  document.querySelectorAll('.mode-tab').forEach(function(tab){
+    tab.addEventListener('click', function(){ switchMode(tab.dataset.mode); });
+  });
+
+  function renderTimer(){
+    var clockText = formatClock(timerSeconds);
+    var elapsedFraction = 1 - (timerSeconds / totalSecondsForMode);
+    ringProgress.style.strokeDashoffset = RING_CIRCUMFERENCE * Math.min(1, Math.max(0, elapsedFraction));
+    ringProgress.style.stroke = currentMode === 'focus' ? 'var(--amber)' : 'var(--teal)';
+
+    timerClock.textContent = clockText;
+    timerMode.textContent = MODE_LABEL[currentMode];
+    toggleBtn.innerHTML = timerRunning ? '&#10074;&#10074; Pause' : '&#9654; Start';
+
+    document.getElementById('stat-sessions').textContent = sessionsCompleted;
+    document.getElementById('stat-total').textContent = totalStudyMinutes + 'm';
+    document.getElementById('stat-cycles-done').textContent = Math.floor(sessionsCompleted / 4);
+
+    if(pipWindow && pipEls){
+      pipEls.clock.textContent = clockText;
+      pipEls.mode.textContent = MODE_LABEL[currentMode];
+      pipEls.cycles.textContent = sessionsCompleted + ' session' + (sessionsCompleted===1?'':'s') + ' done';
+      pipEls.toggleBtn.innerHTML = timerRunning ? '&#10074;&#10074;' : '&#9654;';
+      pipEls.toggleBtn.setAttribute('aria-label', timerRunning ? 'Pause' : 'Start');
+    }
+  }
+
+  function beep(){
+    try{
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      var o = ctx.createOscillator();
+      var g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.value = currentMode === 'focus' ? 660 : 880;
+      g.gain.value = 0.15;
+      o.connect(g); g.connect(ctx.destination);
+      o.start();
+      setTimeout(function(){ o.stop(); ctx.close(); }, 350);
+    }catch(e){}
+  }
+
+  function tick(){
+    timerSeconds--;
+    if(timerSeconds <= 0){
+      beep();
+      if(currentMode === 'focus'){
+        sessionsCompleted++;
+        totalStudyMinutes += selectedMinutes.focus;
+        logSession();
+        var nextMode = (sessionsCompleted % 4 === 0) ? 'long' : 'short';
+        currentMode = nextMode;
+      } else {
+        currentMode = 'focus';
+      }
+      document.querySelectorAll('.mode-tab').forEach(function(t){
+        t.classList.toggle('active', t.dataset.mode === currentMode);
+      });
+      renderDurationChips();
+      totalSecondsForMode = selectedMinutes[currentMode] * 60;
+      timerSeconds = totalSecondsForMode;
+    }
+    renderTimer();
+  }
+
+  function logSession(){
+    var logEl = document.getElementById('timer-log');
+    var emptyLi = logEl.querySelector('.log-empty');
+    if(emptyLi) emptyLi.remove();
+    var li = document.createElement('li');
+    var now = new Date();
+    var timeStr = now.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+    li.innerHTML = '<span>Session ' + sessionsCompleted + '</span><span>' + selectedMinutes.focus + ' min &middot; ' + timeStr + '</span>';
+    logEl.insertBefore(li, logEl.firstChild);
+  }
+
+  function startTimer(){
+    if(timerRunning) return;
+    if(timerSeconds <= 0){ timerSeconds = totalSecondsForMode; }
+    timerRunning = true;
+    timerInterval = setInterval(tick, 1000);
+    renderTimer();
+  }
+  function pauseTimer(){
+    timerRunning = false;
+    clearInterval(timerInterval);
+    renderTimer();
+  }
+  function toggleTimer(){
+    if(timerRunning) pauseTimer(); else startTimer();
+  }
+  function resetTimer(){
+    timerRunning = false;
+    currentMode = 'focus';
+    sessionsCompleted = 0;
+    totalStudyMinutes = 0;
+    clearInterval(timerInterval);
+    document.querySelectorAll('.mode-tab').forEach(function(t){
+      t.classList.toggle('active', t.dataset.mode === 'focus');
+    });
+    renderDurationChips();
+    totalSecondsForMode = selectedMinutes.focus * 60;
+    timerSeconds = totalSecondsForMode;
+    var logEl = document.getElementById('timer-log');
+    logEl.innerHTML = '<li class="log-empty">Completed focus sessions will show up here.</li>';
+    renderTimer();
+  }
+  function adjustTime(deltaSeconds){
+    timerSeconds = Math.max(0, timerSeconds + deltaSeconds);
+    renderTimer();
+  }
+
+  toggleBtn.addEventListener('click', toggleTimer);
+  document.getElementById('timer-reset').addEventListener('click', resetTimer);
+  document.getElementById('timer-minus').addEventListener('click', function(){ adjustTime(-60); });
+  document.getElementById('timer-plus').addEventListener('click', function(){ adjustTime(60); });
+
+  renderDurationChips();
+
+  // ---- Session tasks ----
+  var taskInput = document.getElementById('task-input');
+  var taskAddBtn = document.getElementById('task-add');
+  var taskList = document.getElementById('task-list');
+
+  function addTask(){
+    var text = taskInput.value.trim();
+    if(!text) return;
+    var emptyLi = taskList.querySelector('.log-empty');
+    if(emptyLi) emptyLi.remove();
+    var li = document.createElement('li');
+    var checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    var span = document.createElement('span');
+    span.className = 'task-text';
+    span.textContent = text;
+    var removeBtn = document.createElement('button');
+    removeBtn.className = 'task-remove';
+    removeBtn.type = 'button';
+    removeBtn.innerHTML = '&times;';
+    removeBtn.setAttribute('aria-label', 'Remove task');
+    checkbox.addEventListener('change', function(){
+      li.classList.toggle('done', checkbox.checked);
+    });
+    removeBtn.addEventListener('click', function(){
+      li.remove();
+      if(taskList.children.length === 0){
+        taskList.innerHTML = '<li class="log-empty">No tasks yet. Add what you\'re working on.</li>';
+      }
+    });
+    li.appendChild(checkbox); li.appendChild(span); li.appendChild(removeBtn);
+    taskList.appendChild(li);
+    taskInput.value = '';
+    taskInput.focus();
+  }
+  taskAddBtn.addEventListener('click', addTask);
+  taskInput.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ e.preventDefault(); addTask(); }
+  });
+
+  // ---- Floating pop-out timer (Document Picture-in-Picture) ----
+  var popoutBtn = document.getElementById('timer-popout');
+  var popoutNote = document.getElementById('popout-note');
+
+  if(!('documentPictureInPicture' in window)){
+    popoutNote.textContent = 'Floating pop-out needs Chrome or Edge.';
+  }
+
+  function pipMarkup(){
+    return '' +
+    '<style>' +
+      "@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap');" +
+      ':root{--ink:#17222B;--paper-hi:#EEF0EA;--amber:#D6A03C;--amber-deep:#B9832A;--teal:#3F7D77;}' +
+      '*{box-sizing:border-box;}' +
+      'html,body{margin:0;height:100%;background:var(--ink);}' +
+      'body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;' +
+        "font-family:'IBM Plex Mono',monospace;color:var(--paper-hi);-webkit-font-smoothing:antialiased;padding:10px;}" +
+      '.pip-mode{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);}' +
+      '.pip-clock{font-size:clamp(34px,12vw,48px);font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:.02em;}' +
+      '.pip-adjust{display:flex;gap:8px;}' +
+      '.pip-adjust button{background:transparent;border:1px solid rgba(238,240,234,0.28);color:var(--paper-hi);' +
+        'border-radius:12px;padding:4px 10px;font-family:inherit;font-size:10.5px;cursor:pointer;}' +
+      '.pip-adjust button:hover{background:rgba(238,240,234,0.08);}' +
+      '.pip-controls{display:flex;align-items:center;gap:14px;}' +
+      '.pip-btn{width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;font-size:15px;' +
+        'display:flex;align-items:center;justify-content:center;background:var(--amber);color:var(--ink);' +
+        'transition:filter .15s ease;}' +
+      '.pip-btn:hover{filter:brightness(1.08);}' +
+      '.pip-btn.secondary{background:rgba(238,240,234,0.14);color:var(--paper-hi);font-size:14px;}' +
+      '.pip-cycles{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#8A9390;}' +
+    '</style>' +
+    '<div class="pip-mode" id="pip-mode">Deep Focus</div>' +
+    '<div class="pip-clock" id="pip-clock">25:00</div>' +
+    '<div class="pip-adjust">' +
+      '<button id="pip-minus" type="button">&minus;1 min</button>' +
+      '<button id="pip-plus" type="button">+1 min</button>' +
+    '</div>' +
+    '<div class="pip-controls">' +
+      '<button class="pip-btn secondary" id="pip-reset" type="button" aria-label="Reset">&#8635;</button>' +
+      '<button class="pip-btn" id="pip-toggle" type="button" aria-label="Start">&#9654;</button>' +
+    '</div>' +
+    '<div class="pip-cycles" id="pip-cycles">0 sessions done</div>';
+  }
+
+  async function openPip(){
+    if(!('documentPictureInPicture' in window)){
+      popoutNote.textContent = 'Floating pop-out needs Chrome or Edge.';
+      return;
+    }
+    if(pipWindow){ pipWindow.focus(); return; }
+    try{
+      pipWindow = await documentPictureInPicture.requestWindow({ width: 240, height: 210 });
+    }catch(e){
+      popoutNote.textContent = "Couldn't open the floating window.";
+      return;
+    }
+    pipWindow.document.title = 'Study Timer';
+    pipWindow.document.body.innerHTML = pipMarkup();
+
+    pipEls = {
+      clock: pipWindow.document.getElementById('pip-clock'),
+      mode: pipWindow.document.getElementById('pip-mode'),
+      cycles: pipWindow.document.getElementById('pip-cycles'),
+      toggleBtn: pipWindow.document.getElementById('pip-toggle')
+    };
+    pipEls.toggleBtn.addEventListener('click', toggleTimer);
+    pipWindow.document.getElementById('pip-reset').addEventListener('click', resetTimer);
+    pipWindow.document.getElementById('pip-minus').addEventListener('click', function(){ adjustTime(-60); });
+    pipWindow.document.getElementById('pip-plus').addEventListener('click', function(){ adjustTime(60); });
+
+    pipWindow.addEventListener('pagehide', function(){
+      pipWindow = null;
+      pipEls = null;
+    });
+
+    popoutNote.textContent = "Floating timer's open. Switch tabs freely.";
+    renderTimer();
+  }
+
+  popoutBtn.addEventListener('click', openPip);
+
+  // seed with placeholder examples on load
+  runDewrap();
+  renderTimer();
+})();
+</script>
+
+</body>
+</html>
