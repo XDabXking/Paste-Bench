@@ -94,7 +94,6 @@
     .desk{grid-template-columns:1fr;}
   }
 
-  /* Catalog tabs */
   nav.tabs{
     display:flex;
     flex-direction:column;
@@ -666,7 +665,6 @@
   }
   #task-list li .task-remove:hover{ color:#B5453D; }
 
-  /* Flashcards */
   .deck-wrap{ margin-top:6px; }
   .deck-empty{
     text-align:center;
@@ -884,13 +882,12 @@
 
   <main class="card">
 
-    <!-- PANEL A: DEWRAP -->
     <section class="panel active" id="panel-dewrap">
       <h2>Dewrap <span class="rule">fix pasted paragraphs</span></h2>
-      <p class="desc">Paste text copied from a PDF or slide deck. It drops the hard line breaks inside paragraphs, rejoins hyphenated words, straightens smart quotes and dashes, and collapses stray whitespace. Real paragraph breaks stay untouched.</p>
+      <p class="desc">Paste text from a PDF or slides and clean up the weird line breaks, hyphens, quotes, and extra spaces without messing up the paragraphs.</p>
 
       <label class="fieldlabel" for="dewrap-in">Paste here</label>
-      <textarea class="input" id="dewrap-in" placeholder="Try pasting a paragraph copied from a PDF here and see what happens to the line breaks and hyphens."></textarea>
+      <textarea class="input" id="dewrap-in" placeholder="Try pasting your broken paragraph copied from a PDF here and see what happens."></textarea>
 
       <div class="options">
         <label class="chip"><input type="checkbox" id="opt-quotes" checked>Straighten quotes &amp; dashes</label>
@@ -914,7 +911,6 @@
       </div>
     </section>
 
-    <!-- PANEL B: LISTIFY -->
     <section class="panel" id="panel-listify">
       <h2>Listify <span class="rule">one column, six shapes</span></h2>
       <p class="desc">Paste a column of items, one per line or separated by commas or tabs. You'll get every common format back at once, ready to drop into code, a spreadsheet, or a query.</p>
@@ -948,13 +944,12 @@ Chicago"></textarea>
       </div>
     </section>
 
-    <!-- PANEL C: CASE -->
     <section class="panel" id="panel-case">
       <h2>Case &amp; Slug <span class="rule">rename anything</span></h2>
       <p class="desc">Type or paste a phrase once and every casing convention updates together, so you've got what you need for headings, variables, filenames, or URLs.</p>
 
       <label class="fieldlabel" for="case-in">Text</label>
-      <textarea class="input" id="case-in" style="min-height:60px" placeholder="Quarterly Revenue Report"></textarea>
+      <textarea class="input" id="case-in" style="min-height:60px" placeholder="Enter your text here(IDK what to put here :P)"></textarea>
 
       <div class="outputs" style="margin-top:16px;">
         <div class="outcard empty"><div class="tag"><span>UPPER CASE</span><button class="copybtn" data-copy="case-out-upper">Copy</button></div><pre id="case-out-upper">&mdash;</pre></div>
@@ -972,7 +967,6 @@ Chicago"></textarea>
       </div>
     </section>
 
-    <!-- PANEL D: WORD COUNT & READING LEVEL -->
     <section class="panel" id="panel-words">
       <h2>Word Count <span class="rule">essays, posts, captions</span></h2>
       <p class="desc">Paste your writing to see word count, reading time, and an estimated grade level as you go, so you don't have to open a word processor just to check a number.</p>
@@ -997,7 +991,7 @@ Chicago"></textarea>
         <div class="stat"><span class="num" id="stat-readtime">0:00</span><span class="lbl">Reading time</span></div>
         <div class="stat"><span class="num" id="stat-grade">&mdash;</span><span class="lbl">Est. grade level</span></div>
       </div>
-      <p class="desc" style="margin-top:-8px;">Grade level is a rough estimate (Flesch&ndash;Kincaid) based on sentence and word length. Treat it as a sanity check, not an actual grade.</p>
+      <p class="desc" style="margin-top:-8px;">Grade level is just a rough estimate based on how long the words and sentences are. Use it as a quick check, not an exact grade.</p>
 
       <div class="outputs" style="margin-top:16px;">
         <div class="outcard empty">
@@ -1007,7 +1001,6 @@ Chicago"></textarea>
       </div>
     </section>
 
-    <!-- PANEL E: FLASHCARDS -->
     <section class="panel" id="panel-cite">
       <h2>Flashcards <span class="rule">paste, flip, learn</span></h2>
       <p class="desc">Type or paste term and definition pairs, one per line, separated by a colon, dash, equals sign, or tab. Then press Start Studying to flip through your deck.</p>
@@ -1065,7 +1058,6 @@ Osmosis = Movement of water across a membrane"></textarea>
       </div>
     </section>
 
-    <!-- PANEL F: GROUP PICKER -->
     <section class="panel" id="panel-picker">
       <h2>Group Picker <span class="rule">randomize fairly</span></h2>
       <p class="desc">Paste names, one per line, then shuffle the order, pick one at random, or split everyone into even groups. Handy for presentation order, cold-calling, or group projects.</p>
@@ -1106,7 +1098,6 @@ Nina"></textarea>
       <div class="groupsout" id="picker-groups"></div>
     </section>
 
-    <!-- PANEL G: STUDY TIMER -->
     <section class="panel" id="panel-timer">
       <h2>Study Timer <span class="rule">focus / break cycles</span></h2>
       <p class="desc">A focus timer that switches between work and break automatically. Pop it out to keep it floating on top of other windows while you work.</p>
@@ -1176,8 +1167,7 @@ Nina"></textarea>
 
 <script>
 (function(){
-  // ---------- Tab switching ----------
-  var tabs = document.querySelectorAll('.tab');
+  let tabs = document.querySelectorAll('.tab');
   tabs.forEach(function(tab){
     tab.addEventListener('click', function(){
       tabs.forEach(function(t){ t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
@@ -1188,13 +1178,12 @@ Nina"></textarea>
     });
   });
 
-  // ---------- Copy buttons ----------
   document.querySelectorAll('.copybtn').forEach(function(btn){
     btn.addEventListener('click', function(){
-      var srcId = btn.dataset.copy;
-      var text = document.getElementById(srcId).textContent;
+      let srcId = btn.dataset.copy;
+      let text = document.getElementById(srcId).textContent;
       if(!text || text === '\u2014') return;
-      var doCopy = function(){
+      let doCopy = function(){
         btn.textContent = 'Copied';
         btn.classList.add('copied');
         setTimeout(function(){ btn.textContent='Copy'; btn.classList.remove('copied'); }, 1100);
@@ -1207,27 +1196,26 @@ Nina"></textarea>
     });
   });
   function fallbackCopy(text){
-    var ta = document.createElement('textarea');
+    let ta = document.createElement('textarea');
     ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
     document.body.appendChild(ta); ta.select();
     try{ document.execCommand('copy'); }catch(e){}
     document.body.removeChild(ta);
   }
 
-  // ---------- A: Dewrap ----------
-  var dewrapIn = document.getElementById('dewrap-in');
-  var dewrapOut = document.getElementById('dewrap-out');
-  var dewrapCard = document.getElementById('dewrap-outcard');
-  var dewrapMeter = document.getElementById('dewrap-meter');
-  var dewrapSentCard = document.getElementById('dewrap-sentcard');
-  var dewrapSentences = document.getElementById('dewrap-sentences');
+  let dewrapIn = document.getElementById('dewrap-in');
+  let dewrapOut = document.getElementById('dewrap-out');
+  let dewrapCard = document.getElementById('dewrap-outcard');
+  let dewrapMeter = document.getElementById('dewrap-meter');
+  let dewrapSentCard = document.getElementById('dewrap-sentcard');
+  let dewrapSentences = document.getElementById('dewrap-sentences');
   ['opt-quotes','opt-hyphen','opt-space','opt-html','opt-urls'].forEach(function(id){
     document.getElementById(id).addEventListener('change', runDewrap);
   });
   dewrapIn.addEventListener('input', runDewrap);
 
   function runDewrap(){
-    var raw = dewrapIn.value;
+    let raw = dewrapIn.value;
     if(!raw){
       dewrapOut.textContent = 'Output appears here as you type.';
       dewrapCard.classList.add('empty');
@@ -1236,12 +1224,12 @@ Nina"></textarea>
       dewrapMeter.innerHTML = '<span><b>0</b> chars in</span><span>&rarr;</span><span><b>0</b> chars out</span>';
       return;
     }
-    var text = raw;
-    var straightenQuotes = document.getElementById('opt-quotes').checked;
-    var rejoinHyphen = document.getElementById('opt-hyphen').checked;
-    var collapseSpace = document.getElementById('opt-space').checked;
-    var stripHtml = document.getElementById('opt-html').checked;
-    var removeUrls = document.getElementById('opt-urls').checked;
+    let text = raw;
+    let straightenQuotes = document.getElementById('opt-quotes').checked;
+    let rejoinHyphen = document.getElementById('opt-hyphen').checked;
+    let collapseSpace = document.getElementById('opt-space').checked;
+    let stripHtml = document.getElementById('opt-html').checked;
+    let removeUrls = document.getElementById('opt-urls').checked;
 
     if(stripHtml){
       text = text.replace(/<[^>]*>/g, ' ');
@@ -1257,10 +1245,8 @@ Nina"></textarea>
         .replace(/\u2026/g, '...');
     }
     if(rejoinHyphen){
-      // word broken across a line by a hyphen: "exam-\nple" -> "example"
       text = text.replace(/([A-Za-z])-\n\s*([a-z])/g, '$1$2');
     }
-    // normalize paragraph breaks (2+ newlines) with a placeholder, then collapse single newlines to spaces
     text = text.replace(/\r\n/g, '\n');
     text = text.replace(/\n{2,}/g, '\u0001');
     text = text.replace(/\n/g, ' ');
@@ -1278,7 +1264,7 @@ Nina"></textarea>
     dewrapMeter.innerHTML = '<span><b>'+raw.length+'</b> chars in</span><span>&rarr;</span><span><b>'+text.length+'</b> chars out</span>';
 
     if(text){
-      var sentenceLines = text
+      let sentenceLines = text
         .replace(/\n+/g, ' ')
         .replace(/([.!?])\s+(?=[A-Z0-9"'\u201C])/g, '$1\n')
         .split('\n')
@@ -1292,17 +1278,16 @@ Nina"></textarea>
     }
   }
 
-  // ---------- B: Listify ----------
-  var listIn = document.getElementById('list-in');
-  var listMeter = document.getElementById('list-meter');
+  let listIn = document.getElementById('list-in');
+  let listMeter = document.getElementById('list-meter');
   listIn.addEventListener('input', runListify);
   document.getElementById('opt-list-sort').addEventListener('change', runListify);
   document.getElementById('opt-list-dedupe').addEventListener('change', runListify);
 
   function parseItems(raw){
     if(!raw.trim()) return [];
-    var normalized = raw.replace(/\r\n/g, '\n');
-    var pieces;
+    let normalized = raw.replace(/\r\n/g, '\n');
+    let pieces;
     if(normalized.indexOf('\n') === -1 && (normalized.indexOf(',') !== -1 || normalized.indexOf('\t') !== -1)){
       pieces = normalized.split(/[,\t]/);
     } else {
@@ -1315,16 +1300,16 @@ Nina"></textarea>
   }
 
   function setOut(id, text, isEmpty){
-    var el = document.getElementById(id);
+    let el = document.getElementById(id);
     el.textContent = text;
     el.closest('.outcard').classList.toggle('empty', isEmpty);
   }
 
   function runListify(){
-    var items = parseItems(listIn.value);
-    var dedupe = document.getElementById('opt-list-dedupe').checked;
-    var sort = document.getElementById('opt-list-sort').checked;
-    var allIds = ['list-out-csv','list-out-quoted','list-out-json','list-out-sql','list-out-md','list-out-num','list-out-tab','list-out-pipe'];
+    let items = parseItems(listIn.value);
+    let dedupe = document.getElementById('opt-list-dedupe').checked;
+    let sort = document.getElementById('opt-list-sort').checked;
+    let allIds = ['list-out-csv','list-out-quoted','list-out-json','list-out-sql','list-out-md','list-out-num','list-out-tab','list-out-pipe'];
 
     if(items.length === 0){
       listMeter.innerHTML = '<span><b>0</b> items detected</span>';
@@ -1333,9 +1318,9 @@ Nina"></textarea>
     }
 
     if(dedupe){
-      var seen = {};
+      let seen = {};
       items = items.filter(function(i){
-        var key = i.toLowerCase();
+        let key = i.toLowerCase();
         if(seen[key]) return false;
         seen[key] = true;
         return true;
@@ -1356,8 +1341,7 @@ Nina"></textarea>
     setOut('list-out-pipe', items.join(' | '), false);
   }
 
-  // ---------- C: Case & Slug ----------
-  var caseIn = document.getElementById('case-in');
+  let caseIn = document.getElementById('case-in');
   caseIn.addEventListener('input', runCase);
 
   function words(str){
@@ -1369,28 +1353,28 @@ Nina"></textarea>
   }
 
   function runCase(){
-    var raw = caseIn.value;
-    var allIds = ['case-out-upper','case-out-lower','case-out-title','case-out-sentence','case-out-camel','case-out-pascal','case-out-snake','case-out-kebab','case-out-constant','case-out-dot','case-out-alt','case-out-reverse'];
+    let raw = caseIn.value;
+    let allIds = ['case-out-upper','case-out-lower','case-out-title','case-out-sentence','case-out-camel','case-out-pascal','case-out-snake','case-out-kebab','case-out-constant','case-out-dot','case-out-alt','case-out-reverse'];
     if(!raw.trim()){
       allIds.forEach(function(id){ setOut(id, '\u2014', true); });
       return;
     }
-    var w = words(raw);
-    var lowerWords = w.map(function(x){ return x.toLowerCase(); });
+    let w = words(raw);
+    let lowerWords = w.map(function(x){ return x.toLowerCase(); });
 
-    var upper = raw.toUpperCase();
-    var lower = raw.toLowerCase();
-    var title = lowerWords.map(function(x){ return x.charAt(0).toUpperCase()+x.slice(1); }).join(' ');
-    var sentence = lowerWords.join(' ');
+    let upper = raw.toUpperCase();
+    let lower = raw.toLowerCase();
+    let title = lowerWords.map(function(x){ return x.charAt(0).toUpperCase()+x.slice(1); }).join(' ');
+    let sentence = lowerWords.join(' ');
     sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1);
-    var camel = lowerWords.map(function(x,i){ return i===0 ? x : x.charAt(0).toUpperCase()+x.slice(1); }).join('');
-    var pascal = lowerWords.map(function(x){ return x.charAt(0).toUpperCase()+x.slice(1); }).join('');
-    var snake = lowerWords.join('_');
-    var kebab = lowerWords.join('-');
-    var constant = lowerWords.join('_').toUpperCase();
-    var dot = lowerWords.join('.');
-    var alt = raw.split('').map(function(ch,i){ return i % 2 === 0 ? ch.toLowerCase() : ch.toUpperCase(); }).join('');
-    var reversed = raw.split('').reverse().join('');
+    let camel = lowerWords.map(function(x,i){ return i===0 ? x : x.charAt(0).toUpperCase()+x.slice(1); }).join('');
+    let pascal = lowerWords.map(function(x){ return x.charAt(0).toUpperCase()+x.slice(1); }).join('');
+    let snake = lowerWords.join('_');
+    let kebab = lowerWords.join('-');
+    let constant = lowerWords.join('_').toUpperCase();
+    let dot = lowerWords.join('.');
+    let alt = raw.split('').map(function(ch,i){ return i % 2 === 0 ? ch.toLowerCase() : ch.toUpperCase(); }).join('');
+    let reversed = raw.split('').reverse().join('');
 
     setOut('case-out-upper', upper, false);
     setOut('case-out-lower', lower, false);
@@ -1406,9 +1390,8 @@ Nina"></textarea>
     setOut('case-out-reverse', reversed, false);
   }
 
-  // ---------- D: Word Count & Reading Level ----------
-  var wordsIn = document.getElementById('words-in');
-  var wordsTarget = document.getElementById('words-target');
+  let wordsIn = document.getElementById('words-in');
+  let wordsTarget = document.getElementById('words-target');
   wordsIn.addEventListener('input', runWords);
   wordsTarget.addEventListener('input', runWords);
 
@@ -1417,20 +1400,20 @@ Nina"></textarea>
     if(word.length <= 3) return 1;
     word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/,'');
     word = word.replace(/^y/,'');
-    var matches = word.match(/[aeiouy]{1,2}/g);
+    let matches = word.match(/[aeiouy]{1,2}/g);
     return matches ? matches.length : 1;
   }
 
   function runWords(){
-    var raw = wordsIn.value;
-    var trimmed = raw.trim();
-    var wordList = trimmed ? trimmed.split(/\s+/) : [];
-    var wordCount = wordList.length;
-    var charCount = raw.length;
-    var charNoSpace = raw.replace(/\s/g, '').length;
-    var sentences = trimmed ? (trimmed.match(/[.!?]+(\s|$)/g) || []) : [];
-    var sentenceCount = Math.max(sentences.length, trimmed ? 1 : 0);
-    var paragraphCount = trimmed ? trimmed.split(/\n{2,}/).filter(function(p){return p.trim();}).length : 0;
+    let raw = wordsIn.value;
+    let trimmed = raw.trim();
+    let wordList = trimmed ? trimmed.split(/\s+/) : [];
+    let wordCount = wordList.length;
+    let charCount = raw.length;
+    let charNoSpace = raw.replace(/\s/g, '').length;
+    let sentences = trimmed ? (trimmed.match(/[.!?]+(\s|$)/g) || []) : [];
+    let sentenceCount = Math.max(sentences.length, trimmed ? 1 : 0);
+    let paragraphCount = trimmed ? trimmed.split(/\n{2,}/).filter(function(p){return p.trim();}).length : 0;
 
     document.getElementById('stat-words').textContent = wordCount;
     document.getElementById('stat-chars').textContent = charCount;
@@ -1438,43 +1421,43 @@ Nina"></textarea>
     document.getElementById('stat-sentences').textContent = sentenceCount;
     document.getElementById('stat-paragraphs').textContent = paragraphCount;
 
-    var cleanWords = wordList.map(function(w){ return w.toLowerCase().replace(/[^a-z0-9']/g,''); }).filter(Boolean);
-    var uniqueSet = {};
+    let cleanWords = wordList.map(function(w){ return w.toLowerCase().replace(/[^a-z0-9']/g,''); }).filter(Boolean);
+    let uniqueSet = {};
     cleanWords.forEach(function(w){ uniqueSet[w] = true; });
     document.getElementById('stat-unique').textContent = Object.keys(uniqueSet).length;
 
-    var longest = '';
+    let longest = '';
     wordList.forEach(function(w){
-      var clean = w.replace(/[^a-zA-Z0-9'-]/g,'');
+      let clean = w.replace(/[^a-zA-Z0-9'-]/g,'');
       if(clean.length > longest.length) longest = clean;
     });
     document.getElementById('stat-longest').textContent = longest || '\u2014';
 
-    var minutes = wordCount / 200;
-    var mm = Math.floor(minutes);
-    var ss = Math.round((minutes - mm) * 60);
+    let minutes = wordCount / 200;
+    let mm = Math.floor(minutes);
+    let ss = Math.round((minutes - mm) * 60);
     if(ss === 60){ mm += 1; ss = 0; }
     document.getElementById('stat-readtime').textContent = mm + ':' + (ss<10?'0':'') + ss;
 
-    var gradeEl = document.getElementById('stat-grade');
+    let gradeEl = document.getElementById('stat-grade');
     if(wordCount >= 3 && sentenceCount > 0){
-      var syllableTotal = wordList.reduce(function(sum,w){ return sum + countSyllables(w); }, 0);
-      var grade = 0.39 * (wordCount / sentenceCount) + 11.8 * (syllableTotal / wordCount) - 15.59;
+      let syllableTotal = wordList.reduce(function(sum,w){ return sum + countSyllables(w); }, 0);
+      let grade = 0.39 * (wordCount / sentenceCount) + 11.8 * (syllableTotal / wordCount) - 15.59;
       grade = Math.max(0, Math.round(grade * 10) / 10);
       gradeEl.textContent = grade;
     } else {
       gradeEl.textContent = '\u2014';
     }
 
-    var freqEl = document.getElementById('words-frequent');
-    var freqCard = freqEl.closest('.outcard');
-    var STOPWORDS = {the:1,a:1,an:1,and:1,or:1,but:1,of:1,in:1,on:1,to:1,is:1,it:1,for:1,with:1,as:1,was:1,were:1,are:1,be:1,this:1,that:1,at:1,by:1,from:1,i:1,you:1,he:1,she:1,they:1,we:1};
-    var freq = {};
+    let freqEl = document.getElementById('words-frequent');
+    let freqCard = freqEl.closest('.outcard');
+    let STOPWORDS = {the:1,a:1,an:1,and:1,or:1,but:1,of:1,in:1,on:1,to:1,is:1,it:1,for:1,with:1,as:1,was:1,were:1,are:1,be:1,this:1,that:1,at:1,by:1,from:1,i:1,you:1,he:1,she:1,they:1,we:1};
+    let freq = {};
     cleanWords.forEach(function(w){
       if(w.length < 3 || STOPWORDS[w]) return;
       freq[w] = (freq[w]||0) + 1;
     });
-    var freqList = Object.keys(freq).map(function(w){ return [w, freq[w]]; }).filter(function(pair){ return pair[1] > 1; });
+    let freqList = Object.keys(freq).map(function(w){ return [w, freq[w]]; }).filter(function(pair){ return pair[1] > 1; });
     freqList.sort(function(a,b){ return b[1]-a[1]; });
     freqList = freqList.slice(0,8);
     if(freqList.length){
@@ -1485,55 +1468,53 @@ Nina"></textarea>
       freqCard.classList.add('empty');
     }
 
-    var resultEl = document.getElementById('words-target-result');
-    var target = parseInt(wordsTarget.value, 10);
+    let resultEl = document.getElementById('words-target-result');
+    let target = parseInt(wordsTarget.value, 10);
     if(target && target > 0){
-      var diff = target - wordCount;
+      let diff = target - wordCount;
       resultEl.textContent = diff > 0 ? (diff + ' words to go') : diff < 0 ? ((-diff) + ' words over') : 'Right on target';
     } else {
       resultEl.textContent = '';
     }
   }
 
-  // ---------- E: Flashcards ----------
-  var cardsIn = document.getElementById('cards-in');
-  var cardsSetup = document.getElementById('cards-setup');
-  var cardsSetupNote = document.getElementById('cards-setup-note');
-  var deckWrap = document.getElementById('deck-wrap');
-  var deckSummary = document.getElementById('deck-summary');
-  var deckProgress = document.getElementById('deck-progress');
-  var deckScoreEl = document.getElementById('deck-score');
-  var flashcard = document.getElementById('flashcard');
-  var cardTerm = document.getElementById('card-term');
-  var cardDef = document.getElementById('card-def');
+  let cardsIn = document.getElementById('cards-in');
+  let cardsSetup = document.getElementById('cards-setup');
+  let cardsSetupNote = document.getElementById('cards-setup-note');
+  let deckWrap = document.getElementById('deck-wrap');
+  let deckSummary = document.getElementById('deck-summary');
+  let deckProgress = document.getElementById('deck-progress');
+  let deckScoreEl = document.getElementById('deck-score');
+  let flashcard = document.getElementById('flashcard');
+  let cardTerm = document.getElementById('card-term');
+  let cardDef = document.getElementById('card-def');
 
-  var masterDeck = [];   // full set of {term, def}, fixed for the session
-  var missCounts = [];   // parallel array: how many times each masterDeck index has been missed
-  var currentRound = []; // array of masterDeck indices still being studied this round
-  var roundIndex = 0;    // position within currentRound
-  var nextRoundMisses = []; // indices missed during this round, becomes next round
-  var roundNumber = 1;
-  var studyStartTime = null;
+  let masterDeck = [];
+  let missCounts = [];
+  let currentRound = [];
+  let roundIndex = 0;
+  let nextRoundMisses = [];
+  let roundNumber = 1;
+  let studyStartTime = null;
 
   function parseDeck(raw){
     if(!raw.trim()) return [];
     return raw.split(/\r?\n/).map(function(line){
       if(!line.trim()) return null;
-      // explicit delimiters only: tab, colon, " - ", "--", " = "
-      var m = line.match(/^\s*(.+?)\s*(?:\t|:|\s-\s|--|\s=\s)\s*(.+?)\s*$/);
+      let m = line.match(/^\s*(.+?)\s*(?:\t|:|\s-\s|--|\s=\s)\s*(.+?)\s*$/);
       if(!m) return null;
-      var term = m[1].trim();
-      var def = m[2].trim();
+      let term = m[1].trim();
+      let def = m[2].trim();
       if(!term || !def) return null;
       return { term: term, def: def };
     }).filter(Boolean);
   }
 
   function shuffleIndices(arr){
-    var a = arr.slice();
-    for(var i = a.length - 1; i > 0; i--){
-      var j = Math.floor(Math.random() * (i + 1));
-      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    let a = arr.slice();
+    for(let i = a.length - 1; i > 0; i--){
+      let j = Math.floor(Math.random() * (i + 1));
+      let tmp = a[i]; a[i] = a[j]; a[j] = tmp;
     }
     return a;
   }
@@ -1545,7 +1526,7 @@ Nina"></textarea>
   function renderCard(){
     if(currentRound.length === 0) return;
     flashcard.classList.remove('flipped');
-    var card = currentCard();
+    let card = currentCard();
     cardTerm.textContent = card.term;
     cardDef.textContent = card.def;
     deckProgress.textContent = (roundIndex + 1) + ' / ' + currentRound.length;
@@ -1590,22 +1571,22 @@ Nina"></textarea>
   document.getElementById('summary-restart').addEventListener('click', startStudying);
 
   function formatElapsed(ms){
-    var totalSec = Math.max(0, Math.round(ms / 1000));
-    var m = Math.floor(totalSec / 60);
-    var s = totalSec % 60;
+    let totalSec = Math.max(0, Math.round(ms / 1000));
+    let m = Math.floor(totalSec / 60);
+    let s = totalSec % 60;
     return m + ':' + (s < 10 ? '0' : '') + s;
   }
 
   function finishSession(){
-    var elapsed = Date.now() - studyStartTime;
+    let elapsed = Date.now() - studyStartTime;
     document.getElementById('summary-time').textContent = 'Time taken: ' + formatElapsed(elapsed);
-    var missesEl = document.getElementById('summary-misses');
-    var missedCards = [];
+    let missesEl = document.getElementById('summary-misses');
+    let missedCards = [];
     missCounts.forEach(function(count, i){
       if(count > 0) missedCards.push({ term: masterDeck[i].term, count: count });
     });
     if(missedCards.length === 0){
-      missesEl.innerHTML = '<div class="perfect">Perfect run. Every card right on the first try.</div>';
+      missesEl.innerHTML = '<div class="perfect">Perfect.You got every card right on your first try.</div>';
     } else {
       missedCards.sort(function(a,b){ return b.count - a.count; });
       missesEl.innerHTML = missedCards.map(function(m){
@@ -1621,7 +1602,6 @@ Nina"></textarea>
       renderCard();
       return;
     }
-    // reached the end of this round
     if(nextRoundMisses.length === 0){
       finishSession();
       return;
@@ -1654,10 +1634,10 @@ Nina"></textarea>
     }
   });
   document.addEventListener('keydown', function(e){
-    var deckVisible = deckWrap.style.display !== 'none';
-    var panelActive = document.getElementById('panel-cite').classList.contains('active');
+    let deckVisible = deckWrap.style.display !== 'none';
+    let panelActive = document.getElementById('panel-cite').classList.contains('active');
     if(!panelActive || !deckVisible || currentRound.length === 0) return;
-    var tag = (document.activeElement && document.activeElement.tagName) || '';
+    let tag = (document.activeElement && document.activeElement.tagName) || '';
     if(tag === 'TEXTAREA' || tag === 'INPUT') return;
     if(e.key === 'ArrowRight'){ e.preventDefault(); nextCard(); }
     if(e.key === 'ArrowLeft'){ e.preventDefault(); prevCard(); }
@@ -1677,41 +1657,39 @@ Nina"></textarea>
   });
   document.getElementById('card-miss').addEventListener('click', function(){
     if(currentRound.length === 0) return;
-    var idx = currentRound[roundIndex];
+    let idx = currentRound[roundIndex];
     missCounts[idx]++;
     if(nextRoundMisses.indexOf(idx) === -1) nextRoundMisses.push(idx);
     advanceAfterAnswer();
   });
 
-  // ---- Send list from Listify straight into Flashcards (setup view, not auto-started) ----
   document.getElementById('btn-send-flashcards').addEventListener('click', function(){
-    var text = document.getElementById('list-in').value;
+    let text = document.getElementById('list-in').value;
     if(!text.trim()) return;
     cardsIn.value = text;
     showSetup();
     document.querySelectorAll('.tab').forEach(function(t){
-      var isCite = t.dataset.panel === 'cite';
+      let isCite = t.dataset.panel === 'cite';
       t.classList.toggle('active', isCite);
       t.setAttribute('aria-selected', isCite ? 'true' : 'false');
     });
     document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
     document.getElementById('panel-cite').classList.add('active');
-    var btn = document.getElementById('btn-send-flashcards');
-    var original = btn.textContent;
+    let btn = document.getElementById('btn-send-flashcards');
+    let original = btn.textContent;
     btn.textContent = 'Sent!';
     setTimeout(function(){ btn.textContent = original; }, 1200);
   });
 
-  // ---------- F: Group Picker ----------
-  var pickerIn = document.getElementById('picker-in');
-  var pickerResult = document.getElementById('picker-result');
-  var usedPicks = {};
+  let pickerIn = document.getElementById('picker-in');
+  let pickerResult = document.getElementById('picker-result');
+  let usedPicks = {};
 
   function shuffle(arr){
-    var a = arr.slice();
-    for(var i = a.length - 1; i > 0; i--){
-      var j = Math.floor(Math.random() * (i + 1));
-      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    let a = arr.slice();
+    for(let i = a.length - 1; i > 0; i--){
+      let j = Math.floor(Math.random() * (i + 1));
+      let tmp = a[i]; a[i] = a[j]; a[j] = tmp;
     }
     return a;
   }
@@ -1719,14 +1697,14 @@ Nina"></textarea>
   pickerIn.addEventListener('input', function(){ usedPicks = {}; });
 
   document.getElementById('btn-pick-one').addEventListener('click', function(){
-    var names = parseItems(pickerIn.value);
+    let names = parseItems(pickerIn.value);
     if(names.length === 0){
       pickerResult.className = 'placeholder';
       pickerResult.textContent = 'Add names above, then pick.';
       return;
     }
-    var avoidRepeat = document.getElementById('opt-avoid-repeat').checked;
-    var pool = names;
+    let avoidRepeat = document.getElementById('opt-avoid-repeat').checked;
+    let pool = names;
     if(avoidRepeat){
       pool = names.filter(function(n){ return !usedPicks[n]; });
       if(pool.length === 0){
@@ -1734,7 +1712,7 @@ Nina"></textarea>
         pool = names;
       }
     }
-    var pick = pool[Math.floor(Math.random() * pool.length)];
+    let pick = pool[Math.floor(Math.random() * pool.length)];
     if(avoidRepeat) usedPicks[pick] = true;
     pickerResult.className = 'winner';
     pickerResult.style.fontSize = '';
@@ -1742,21 +1720,21 @@ Nina"></textarea>
   });
 
   document.getElementById('btn-pick-multi').addEventListener('click', function(){
-    var names = parseItems(pickerIn.value);
-    var count = Math.max(1, parseInt(document.getElementById('picker-count').value, 10) || 1);
+    let names = parseItems(pickerIn.value);
+    let count = Math.max(1, parseInt(document.getElementById('picker-count').value, 10) || 1);
     if(names.length === 0){
       pickerResult.className = 'placeholder';
       pickerResult.textContent = 'Add names above, then pick.';
       return;
     }
-    var winners = shuffle(names).slice(0, Math.min(count, names.length));
+    let winners = shuffle(names).slice(0, Math.min(count, names.length));
     pickerResult.className = 'winner';
     pickerResult.style.fontSize = 'clamp(16px,3vw,22px)';
     pickerResult.textContent = winners.join('  \u00b7  ');
   });
 
   document.getElementById('btn-shuffle').addEventListener('click', function(){
-    var names = parseItems(pickerIn.value);
+    let names = parseItems(pickerIn.value);
     if(names.length === 0){
       pickerResult.className = 'placeholder';
       pickerResult.textContent = 'Add names above, then shuffle.';
@@ -1768,23 +1746,23 @@ Nina"></textarea>
   });
 
   document.getElementById('btn-groups').addEventListener('click', function(){
-    var names = shuffle(parseItems(pickerIn.value));
-    var size = parseInt(document.getElementById('picker-groupsize').value, 10) || 2;
-    var out = document.getElementById('picker-groups');
+    let names = shuffle(parseItems(pickerIn.value));
+    let size = parseInt(document.getElementById('picker-groupsize').value, 10) || 2;
+    let out = document.getElementById('picker-groups');
     out.innerHTML = '';
     if(names.length === 0) return;
-    var groups = [];
-    for(var i = 0; i < names.length; i += size){
+    let groups = [];
+    for(let i = 0; i < names.length; i += size){
       groups.push(names.slice(i, i + size));
     }
     groups.forEach(function(g, idx){
-      var div = document.createElement('div');
+      let div = document.createElement('div');
       div.className = 'grp';
-      var h4 = document.createElement('h4');
+      let h4 = document.createElement('h4');
       h4.textContent = 'Group ' + (idx + 1);
-      var ul = document.createElement('ul');
+      let ul = document.createElement('ul');
       g.forEach(function(n){
-        var li = document.createElement('li');
+        let li = document.createElement('li');
         li.textContent = n;
         ul.appendChild(li);
       });
@@ -1793,44 +1771,43 @@ Nina"></textarea>
     });
   });
 
-  // ---------- G: Study Timer ----------
-  var timerClock = document.getElementById('timer-clock');
-  var timerMode = document.getElementById('timer-mode');
-  var ringProgress = document.getElementById('ring-progress');
-  var toggleBtn = document.getElementById('timer-toggle');
-  var durationChipsWrap = document.getElementById('duration-chips');
-  var RING_CIRCUMFERENCE = 2 * Math.PI * 96;
+  let timerClock = document.getElementById('timer-clock');
+  let timerMode = document.getElementById('timer-mode');
+  let ringProgress = document.getElementById('ring-progress');
+  let toggleBtn = document.getElementById('timer-toggle');
+  let durationChipsWrap = document.getElementById('duration-chips');
+  let RING_CIRCUMFERENCE = 2 * Math.PI * 96;
   ringProgress.style.strokeDasharray = RING_CIRCUMFERENCE;
   ringProgress.style.strokeDashoffset = 0;
 
-  var DURATIONS = {
+  let DURATIONS = {
     focus: [15, 25, 30, 45, 60],
     short: [5, 10, 15],
     long: [15, 20, 30]
   };
-  var MODE_LABEL = { focus: 'Deep Focus', short: 'Short Break', long: 'Long Break' };
-  var selectedMinutes = { focus: 25, short: 5, long: 15 };
-  var currentMode = 'focus';
+  let MODE_LABEL = { focus: 'Deep Focus', short: 'Short Break', long: 'Long Break' };
+  let selectedMinutes = { focus: 25, short: 5, long: 15 };
+  let currentMode = 'focus';
 
-  var timerInterval = null;
-  var totalSecondsForMode = selectedMinutes.focus * 60;
-  var timerSeconds = totalSecondsForMode;
-  var timerRunning = false;
-  var sessionsCompleted = 0;
-  var totalStudyMinutes = 0;
-  var pipWindow = null;
-  var pipEls = null;
+  let timerInterval = null;
+  let totalSecondsForMode = selectedMinutes.focus * 60;
+  let timerSeconds = totalSecondsForMode;
+  let timerRunning = false;
+  let sessionsCompleted = 0;
+  let totalStudyMinutes = 0;
+  let pipWindow = null;
+  let pipEls = null;
 
   function formatClock(s){
-    var m = Math.floor(s / 60);
-    var sec = s % 60;
+    let m = Math.floor(s / 60);
+    let sec = s % 60;
     return m + ':' + (sec < 10 ? '0' : '') + sec;
   }
 
   function renderDurationChips(){
     durationChipsWrap.innerHTML = '';
     DURATIONS[currentMode].forEach(function(mins){
-      var chip = document.createElement('button');
+      let chip = document.createElement('button');
       chip.type = 'button';
       chip.className = 'duration-chip' + (mins === selectedMinutes[currentMode] ? ' active' : '');
       chip.textContent = mins + 'm';
@@ -1863,10 +1840,10 @@ Nina"></textarea>
   });
 
   function renderTimer(){
-    var clockText = formatClock(timerSeconds);
-    var elapsedFraction = 1 - (timerSeconds / totalSecondsForMode);
+    let clockText = formatClock(timerSeconds);
+    let elapsedFraction = 1 - (timerSeconds / totalSecondsForMode);
     ringProgress.style.strokeDashoffset = RING_CIRCUMFERENCE * Math.min(1, Math.max(0, elapsedFraction));
-    ringProgress.style.stroke = currentMode === 'focus' ? 'var(--amber)' : 'var(--teal)';
+    ringProgress.style.stroke = currentMode === 'focus' ? 'let(--amber)' : 'let(--teal)';
 
     timerClock.textContent = clockText;
     timerMode.textContent = MODE_LABEL[currentMode];
@@ -1887,9 +1864,9 @@ Nina"></textarea>
 
   function beep(){
     try{
-      var ctx = new (window.AudioContext || window.webkitAudioContext)();
-      var o = ctx.createOscillator();
-      var g = ctx.createGain();
+      let ctx = new (window.AudioContext || window.webkitAudioContext)();
+      let o = ctx.createOscillator();
+      let g = ctx.createGain();
       o.type = 'sine';
       o.frequency.value = currentMode === 'focus' ? 660 : 880;
       g.gain.value = 0.15;
@@ -1907,7 +1884,7 @@ Nina"></textarea>
         sessionsCompleted++;
         totalStudyMinutes += selectedMinutes.focus;
         logSession();
-        var nextMode = (sessionsCompleted % 4 === 0) ? 'long' : 'short';
+        let nextMode = (sessionsCompleted % 4 === 0) ? 'long' : 'short';
         currentMode = nextMode;
       } else {
         currentMode = 'focus';
@@ -1923,12 +1900,12 @@ Nina"></textarea>
   }
 
   function logSession(){
-    var logEl = document.getElementById('timer-log');
-    var emptyLi = logEl.querySelector('.log-empty');
+    let logEl = document.getElementById('timer-log');
+    let emptyLi = logEl.querySelector('.log-empty');
     if(emptyLi) emptyLi.remove();
-    var li = document.createElement('li');
-    var now = new Date();
-    var timeStr = now.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+    let li = document.createElement('li');
+    let now = new Date();
+    let timeStr = now.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
     li.innerHTML = '<span>Session ' + sessionsCompleted + '</span><span>' + selectedMinutes.focus + ' min &middot; ' + timeStr + '</span>';
     logEl.insertBefore(li, logEl.firstChild);
   }
@@ -1960,7 +1937,7 @@ Nina"></textarea>
     renderDurationChips();
     totalSecondsForMode = selectedMinutes.focus * 60;
     timerSeconds = totalSecondsForMode;
-    var logEl = document.getElementById('timer-log');
+    let logEl = document.getElementById('timer-log');
     logEl.innerHTML = '<li class="log-empty">Completed focus sessions will show up here.</li>';
     renderTimer();
   }
@@ -1976,23 +1953,22 @@ Nina"></textarea>
 
   renderDurationChips();
 
-  // ---- Session tasks ----
-  var taskInput = document.getElementById('task-input');
-  var taskAddBtn = document.getElementById('task-add');
-  var taskList = document.getElementById('task-list');
+  let taskInput = document.getElementById('task-input');
+  let taskAddBtn = document.getElementById('task-add');
+  let taskList = document.getElementById('task-list');
 
   function addTask(){
-    var text = taskInput.value.trim();
+    let text = taskInput.value.trim();
     if(!text) return;
-    var emptyLi = taskList.querySelector('.log-empty');
+    let emptyLi = taskList.querySelector('.log-empty');
     if(emptyLi) emptyLi.remove();
-    var li = document.createElement('li');
-    var checkbox = document.createElement('input');
+    let li = document.createElement('li');
+    let checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
-    var span = document.createElement('span');
+    let span = document.createElement('span');
     span.className = 'task-text';
     span.textContent = text;
-    var removeBtn = document.createElement('button');
+    let removeBtn = document.createElement('button');
     removeBtn.className = 'task-remove';
     removeBtn.type = 'button';
     removeBtn.innerHTML = '&times;';
@@ -2016,9 +1992,8 @@ Nina"></textarea>
     if(e.key === 'Enter'){ e.preventDefault(); addTask(); }
   });
 
-  // ---- Floating pop-out timer (Document Picture-in-Picture) ----
-  var popoutBtn = document.getElementById('timer-popout');
-  var popoutNote = document.getElementById('popout-note');
+  let popoutBtn = document.getElementById('timer-popout');
+  let popoutNote = document.getElementById('popout-note');
 
   if(!('documentPictureInPicture' in window)){
     popoutNote.textContent = 'Floating pop-out needs Chrome or Edge.';
@@ -2030,21 +2005,21 @@ Nina"></textarea>
       "@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap');" +
       ':root{--ink:#17222B;--paper-hi:#EEF0EA;--amber:#D6A03C;--amber-deep:#B9832A;--teal:#3F7D77;}' +
       '*{box-sizing:border-box;}' +
-      'html,body{margin:0;height:100%;background:var(--ink);}' +
+      'html,body{margin:0;height:100%;background:let(--ink);}' +
       'body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;' +
-        "font-family:'IBM Plex Mono',monospace;color:var(--paper-hi);-webkit-font-smoothing:antialiased;padding:10px;}" +
-      '.pip-mode{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);}' +
+        "font-family:'IBM Plex Mono',monospace;color:let(--paper-hi);-webkit-font-smoothing:antialiased;padding:10px;}" +
+      '.pip-mode{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:let(--teal);}' +
       '.pip-clock{font-size:clamp(34px,12vw,48px);font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:.02em;}' +
       '.pip-adjust{display:flex;gap:8px;}' +
-      '.pip-adjust button{background:transparent;border:1px solid rgba(238,240,234,0.28);color:var(--paper-hi);' +
+      '.pip-adjust button{background:transparent;border:1px solid rgba(238,240,234,0.28);color:let(--paper-hi);' +
         'border-radius:12px;padding:4px 10px;font-family:inherit;font-size:10.5px;cursor:pointer;}' +
       '.pip-adjust button:hover{background:rgba(238,240,234,0.08);}' +
       '.pip-controls{display:flex;align-items:center;gap:14px;}' +
       '.pip-btn{width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;font-size:15px;' +
-        'display:flex;align-items:center;justify-content:center;background:var(--amber);color:var(--ink);' +
+        'display:flex;align-items:center;justify-content:center;background:let(--amber);color:let(--ink);' +
         'transition:filter .15s ease;}' +
       '.pip-btn:hover{filter:brightness(1.08);}' +
-      '.pip-btn.secondary{background:rgba(238,240,234,0.14);color:var(--paper-hi);font-size:14px;}' +
+      '.pip-btn.secondary{background:rgba(238,240,234,0.14);color:let(--paper-hi);font-size:14px;}' +
       '.pip-cycles{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#8A9390;}' +
     '</style>' +
     '<div class="pip-mode" id="pip-mode">Deep Focus</div>' +
@@ -2097,11 +2072,9 @@ Nina"></textarea>
 
   popoutBtn.addEventListener('click', openPip);
 
-  // seed with placeholder examples on load
   runDewrap();
   renderTimer();
-})();
-</script>
+})();</script>
 
 </body>
 </html>
