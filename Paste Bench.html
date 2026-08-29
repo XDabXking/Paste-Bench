@@ -865,7 +865,7 @@
   </div>
   <div>
     <h1>Paste Bench</h1>
-    <p>Text lands here messy. It leaves in the shape you actually need.</p>
+    <p>The helpful tool to help YOU say organized.</p>
   </div>
 </header>
 
@@ -884,7 +884,7 @@
 
     <section class="panel active" id="panel-dewrap">
       <h2>Dewrap <span class="rule">fix pasted paragraphs</span></h2>
-      <p class="desc">Paste text from a PDF or slides and clean up the weird line breaks, hyphens, quotes, and extra spaces without messing up the paragraphs.</p>
+      <p class="desc">Copy from a PDF or slides and remove weird line breaks, hyphens, quotes, and extra spaces without ruining paragraphs.</p>
 
       <label class="fieldlabel" for="dewrap-in">Paste here</label>
       <textarea class="input" id="dewrap-in" placeholder="Try pasting your broken paragraph copied from a PDF here and see what happens."></textarea>
@@ -913,7 +913,7 @@
 
     <section class="panel" id="panel-listify">
       <h2>Listify <span class="rule">one column, six shapes</span></h2>
-      <p class="desc">Paste a column of items, one per line or separated by commas or tabs. You'll get every common format back at once, ready to drop into code, a spreadsheet, or a query.</p>
+      <p class="desc">Paste a column of items, one per line, or separated by commas or tabs. You’ll receive all the common formats back immediately, ready to be dropped into code, a spreadsheet, or a query.</p>
 
       <label class="fieldlabel" for="list-in">Paste items (one per line, or comma/tab separated)</label>
       <textarea class="input" id="list-in" placeholder="Atlanta
@@ -927,7 +927,7 @@ Chicago"></textarea>
 
       <div class="send-row">
         <button class="ring-btn secondary" id="btn-send-flashcards">&#8594; Send to Flashcards</button>
-        <span class="popout-note" id="send-flashcards-note">Works great with term/answer pairs, like <code>Black hole - a region of spacetime with intense gravity</code></span>
+        <span class="popout-note" id="send-flashcards-note">Works well with pairs, e.g <code>Black hole - a region of spacetime with strong gravity</code></span>
       </div>
 
       <div class="meter" id="list-meter"><span><b>0</b> items detected</span></div>
@@ -946,7 +946,7 @@ Chicago"></textarea>
 
     <section class="panel" id="panel-case">
       <h2>Case &amp; Slug <span class="rule">rename anything</span></h2>
-      <p class="desc">Type or paste a phrase once and every casing convention updates together, so you've got what you need for headings, variables, filenames, or URLs.</p>
+      <p class="desc">Type or paste a phrase once and all casing conventions update together, so you've got what you need for headings, variables, filenames or URLs.</p>
 
       <label class="fieldlabel" for="case-in">Text</label>
       <textarea class="input" id="case-in" style="min-height:60px" placeholder="Enter your text here(IDK what to put here :P)"></textarea>
@@ -969,10 +969,10 @@ Chicago"></textarea>
 
     <section class="panel" id="panel-words">
       <h2>Word Count <span class="rule">essays, posts, captions</span></h2>
-      <p class="desc">Paste your writing to see word count, reading time, and an estimated grade level as you go, so you don't have to open a word processor just to check a number.</p>
+      <p class="desc">Paste your writing below to see word count, reading time and an estimated grade level as you type so you don't have to open a word processor just to check a number.</p>
 
       <label class="fieldlabel" for="words-in">Your text</label>
-      <textarea class="input" id="words-in" style="min-height:160px" placeholder="Paste or type an essay, post, or paragraph here."></textarea>
+      <textarea class="input" id="words-in" style="min-height:160px" placeholder="Paste or type your projects, school work or any smt else here."></textarea>
 
       <div class="targetrow">
         <label class="fieldlabel" style="margin:0;" for="words-target">Word count target</label>
@@ -1217,7 +1217,7 @@ Nina"></textarea>
   function runDewrap(){
     let raw = dewrapIn.value;
     if(!raw){
-      dewrapOut.textContent = 'Output appears here as you type.';
+      dewrapOut.textContent = 'Output shows up here as you type.';
       dewrapCard.classList.add('empty');
       dewrapSentences.textContent = '\u2014';
       dewrapSentCard.classList.add('empty');
@@ -1586,7 +1586,7 @@ Nina"></textarea>
       if(count > 0) missedCards.push({ term: masterDeck[i].term, count: count });
     });
     if(missedCards.length === 0){
-      missesEl.innerHTML = '<div class="perfect">Perfect.You got every card right on your first try.</div>';
+      missesEl.innerHTML = '<div class="perfect">Perfect. You got every card right on your first try.</div>';
     } else {
       missedCards.sort(function(a,b){ return b.count - a.count; });
       missesEl.innerHTML = missedCards.map(function(m){
@@ -2005,21 +2005,21 @@ Nina"></textarea>
       "@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap');" +
       ':root{--ink:#17222B;--paper-hi:#EEF0EA;--amber:#D6A03C;--amber-deep:#B9832A;--teal:#3F7D77;}' +
       '*{box-sizing:border-box;}' +
-      'html,body{margin:0;height:100%;background:let(--ink);}' +
+      'html,body{margin:0;height:100%;background:var(--ink);}' +
       'body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;' +
-        "font-family:'IBM Plex Mono',monospace;color:let(--paper-hi);-webkit-font-smoothing:antialiased;padding:10px;}" +
-      '.pip-mode{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:let(--teal);}' +
+        "font-family:'IBM Plex Mono',monospace;color:var(--paper-hi);-webkit-font-smoothing:antialiased;padding:10px;}" +
+      '.pip-mode{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);}' +
       '.pip-clock{font-size:clamp(34px,12vw,48px);font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:.02em;}' +
       '.pip-adjust{display:flex;gap:8px;}' +
-      '.pip-adjust button{background:transparent;border:1px solid rgba(238,240,234,0.28);color:let(--paper-hi);' +
+      '.pip-adjust button{background:transparent;border:1px solid rgba(238,240,234,0.28);color:var(--paper-hi);' +
         'border-radius:12px;padding:4px 10px;font-family:inherit;font-size:10.5px;cursor:pointer;}' +
-      '.pip-adjust button:hover{background:rgba(238,240,234,0.08);}' +
+      '.pip-adjust button:hover{background:rgba(23,34,43,0.06);}' +
       '.pip-controls{display:flex;align-items:center;gap:14px;}' +
       '.pip-btn{width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;font-size:15px;' +
-        'display:flex;align-items:center;justify-content:center;background:let(--amber);color:let(--ink);' +
+        'display:flex;align-items:center;justify-content:center;background:var(--amber);color:var(--ink);' +
         'transition:filter .15s ease;}' +
       '.pip-btn:hover{filter:brightness(1.08);}' +
-      '.pip-btn.secondary{background:rgba(238,240,234,0.14);color:let(--paper-hi);font-size:14px;}' +
+      '.pip-btn.secondary{background:rgba(238,240,234,0.14);color:var(--paper-hi);font-size:14px;}' +
       '.pip-cycles{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#8A9390;}' +
     '</style>' +
     '<div class="pip-mode" id="pip-mode">Deep Focus</div>' +
